@@ -1,0 +1,32 @@
+
+.navbar {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: lightblue;
+}
+
+.navcontainer {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.navheader {
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: darkgreen;
+}
+
+.title {
+  font-weight: bold;
+  font-size: larger;
+}
+
+.github {
+  cursor: pointer;
+}
+
+.navdays {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
