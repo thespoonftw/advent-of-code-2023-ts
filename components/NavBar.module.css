@@ -1,7 +1,7 @@
 
 .navbar {
   font-family: 'Courier New', Courier, monospace;
-  background-color: lightblue;
+  background-color: #0f0f23;
 }
 
 .navcontainer {
@@ -10,23 +10,40 @@
 }
 
 .navheader {
-  padding-top: 20px;
+  
   display: flex;
   justify-content: space-between;
-  color: darkgreen;
+  
 }
 
 .title {
   font-weight: bold;
   font-size: larger;
+  color: #cccccc;
+  text-align: center;
+}
+
+.links {
+  padding-top: 20px;
+  text-align: right;
 }
 
 .github {
-  cursor: pointer;
+  color: #cccccc;
+  text-decoration: none;
 }
 
 .navdays {
   padding: 20px;
   display: flex;
   justify-content: center;
+}
+
+.a {
+  color: lime;
+  text-decoration: none;
+}
+
+.a:visited {
+  color: magenta;
 }

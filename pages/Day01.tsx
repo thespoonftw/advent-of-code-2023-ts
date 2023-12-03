@@ -1,13 +1,12 @@
 import styles from '../styles/Home.module.css';
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
+import Solver, { SolverProps } from '../components/Solver';
 
-export default function Home() {
+export default function Day01() {
 
-  const [inputText, setInputText] = useState('');
-  const [result, setResult] = useState(0);
   const [lineValues, setLineValues] = useState<number[]>([]);
-
+  
   const digits = [
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
   ]
@@ -16,24 +15,22 @@ export default function Home() {
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
   ]
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputText(event.target.value);
-  };
+  const part1 = (input: string): string => {
+    return evaluateInput(input, false);
+  }
 
-  const handlePart1Click = () => {
-    evaluateInput(false);
-  };
+  const part2 = (input: string): string => {
+    return evaluateInput(input, true);
+  }
 
-  const handlePart2Click = () => {
-    evaluateInput(true);
-  };
+  const solverProps = new SolverProps(part1, part2);
 
-  const evaluateInput = (isPart2: boolean) => {
-    const lines: string[] = inputText.split('\n'); 
+  const evaluateInput = (input: string, isPart2: boolean): string => {
+    const lines: string[] = input.split('\n'); 
     const values: number[] = lines.map((line) => evaluateLine(line, isPart2));
     setLineValues(values);
     const sum: number = values.reduce((acc, value) => acc + value, 0);
-    setResult(sum);
+    return sum.toString();
   };
 
   const evaluateLine = (line: string, isPart2: boolean): number => {
@@ -79,17 +76,11 @@ export default function Home() {
   }
   
   return (
-    <PageLayout>
-      <p>Paste <code>input</code> into text area below and click Part 1 / Part 2.</p>
-
-      <textarea value={inputText} onChange={handleInputChange}></textarea>
-
-      <span>
+    <PageLayout pageTitle={"Day 01: Trebuchet?!"} >
+      
+      <Solver solverProps={solverProps} />
 
 
-      <button  onClick={handlePart1Click}>Part 1</button>
-      <button  onClick={handlePart2Click}>Part 2</button>
-      </span>
 
       <p className={styles.description}>Working:</p>
 
@@ -99,9 +90,6 @@ export default function Home() {
           </div>
       )}
 
-      <p className={styles.description}>Result:</p>
-
-      <p className={styles.description}>{result}</p>
     </PageLayout>
   );
 }
