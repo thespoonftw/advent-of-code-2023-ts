@@ -1,6 +1,6 @@
 
 .label {
-  width: 100px;
+  min-width: 100px;
 }
 
 .row {
@@ -10,7 +10,8 @@
 
 .input {
   flex-grow: 1;
-  height: 100px;
+  height: 180px;
+  resize: vertical;
 }
 
 .button {
@@ -28,4 +29,16 @@
   outline-width: 1px;
   text-align: center;
   padding: 5px;
+}
+
+.working {
+  background-color: white;
+  flex-grow: 1;
+  height: 180px;
+  border: 1px solid black; 
+  resize: vertical;
+  overflow: auto;
+  font-size: 14px;
+  color: black;
+  padding: 2px;
 }
