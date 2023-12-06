@@ -12,6 +12,7 @@
   flex-grow: 1;
   height: 180px;
   resize: vertical;
+  white-space: nowrap;
 }
 
 .button {
@@ -41,4 +42,5 @@
   font-size: 14px;
   color: black;
   padding: 2px;
+  white-space: nowrap;
 }
