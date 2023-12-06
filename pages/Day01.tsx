@@ -29,8 +29,15 @@ export default function Day01() {
 
       <WorkingBox>
         {values && values.map((value, index) => (
-            <div key={index}>
-              <span style={{color: "gray"}}>{String(index).padStart(3, '0')}</span> {value.leftValue.digit}{value.rightValue.digit} {value.inputString}
+            <div key={index} style={{position: "relative"}}>
+              <HighlightRow index={value.leftValue.index} length={value.leftValue.length} color='rgba(255, 0, 0, 0.25)' />
+              <HighlightRow index={value.rightValue.index} length={value.rightValue.length} color='rgba(0, 0, 255, 0.25)' />
+              <span style={{color: "gray"}}>{String(index).padStart(3, '0')}</span>
+              &nbsp;
+              <span style={{backgroundColor: "rgba(255, 0, 0, 0.25)"}}>{value.leftValue.digit}</span>
+              <span style={{backgroundColor: "rgba(0, 0, 255, 0.25)"}}>{value.rightValue.digit}</span>
+              &nbsp;
+              {value.inputString}
             </div>
           ))
         }
@@ -39,6 +46,24 @@ export default function Day01() {
     </PageLayout>
   );
 }
+
+interface HighlightProps {
+  index: number;
+  length: number;
+  color: string;
+}
+
+const HighlightRow: React.FC<HighlightProps> = ({ index, length, color }) => {
+  const indexArray = Array.from({ length: index });
+  const highlightArray = Array.from({ length: length });
+  const myStyle = {color: 'rgba(0, 0, 0, 0)', backgroundColor: color};
+  return (
+    <div style={{position: 'absolute'}}>
+      <span style={{color: "white"}}>_______{indexArray.map((_, index) => ( "_" ))}</span>
+      <span style={{...myStyle}}>{highlightArray.map((_, index) => ( "_" ))}</span>
+    </div>
+  );
+};
   
 const digits = [
   "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
@@ -50,13 +75,13 @@ const strings = [
 
 class Highlight {
 
-  startIndex: number;
-  endIndex: number;
+  index: number;
+  length: number;
   digit: number;
 
-  constructor(startIndex: number, endIndex: number, digit: number) {
-    this.startIndex = startIndex;
-    this.endIndex = endIndex;
+  constructor(index: number, length: number, digit: number) {
+    this.index = index;
+    this.length = length;
     this.digit = digit;
   }
 
@@ -94,7 +119,7 @@ const getHighlightInLine = (line: string, isSimple: boolean, isForward: boolean)
 
     for (let j = 0; j < 10; j++) {
       if (c === digits[j]) {
-        return new Highlight(i, i, j);
+        return new Highlight(i, 1, j);
       }
     }
 
@@ -109,7 +134,7 @@ const getHighlightInLine = (line: string, isSimple: boolean, isForward: boolean)
         const substr = line.substring(i, endIndex);
 
         if (substr === toMatch) {
-          return new Highlight(i, i + toMatch.length, j);
+          return new Highlight(i, toMatch.length, j);
         }
       }
     }
