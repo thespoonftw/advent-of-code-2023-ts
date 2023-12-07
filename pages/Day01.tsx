@@ -20,7 +20,7 @@ export default function Render() {
     return getSumOfValues(values).toString();
   }
   
-  const solverProps = new SolverProps(part1, part2);
+  const solverProps = new SolverProps(part1, part2, "Test01.txt");
 
   return (
     <PageLayout pageTitle={"Day 01: Trebuchet?!"} >
@@ -28,15 +28,18 @@ export default function Render() {
       <Solver solverProps={solverProps} />
 
       <WorkingBox>
+        <div><b>&nbsp;Row</b> | <b>#&nbsp;</b> | <b>String</b> </div>
+        <div>{String("").padStart(72, '-')}</div>
         {values && values.map((value, index) => (
             <div key={index} style={{position: "relative"}}>
               <HighlightRow index={value.leftValue.index} length={value.leftValue.length} color='rgba(255, 0, 0, 0.25)' />
               <HighlightRow index={value.rightValue.index} length={value.rightValue.length} color='rgba(0, 0, 255, 0.25)' />
-              <span style={{color: "gray"}}>{String(index).padStart(3, '0')}</span>
               &nbsp;
+              {String(index).padEnd(3, '\u00A0')}
+              &nbsp;|&nbsp;
               <span style={{backgroundColor: "rgba(255, 0, 0, 0.25)"}}>{value.leftValue.digit}</span>
               <span style={{backgroundColor: "rgba(0, 0, 255, 0.25)"}}>{value.rightValue.digit}</span>
-              &nbsp;
+              &nbsp;|&nbsp;
               {value.inputString}
             </div>
           ))
@@ -59,7 +62,7 @@ const HighlightRow: React.FC<HighlightProps> = ({ index, length, color }) => {
   const myStyle = {color: 'rgba(0, 0, 0, 0)', backgroundColor: color};
   return (
     <div style={{position: 'absolute'}}>
-      <span style={{color: "white"}}>_______{indexArray.map((_, index) => ( "_" ))}</span>
+      <span style={{color: "white"}}>____________{indexArray.map((_, index) => ( "_" ))}</span>
       <span style={{...myStyle}}>{highlightArray.map((_, index) => ( "_" ))}</span>
     </div>
   );

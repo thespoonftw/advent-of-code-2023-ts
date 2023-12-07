@@ -15,7 +15,7 @@ export default function Render() {
     return evaluateInput(input, true);
   }
 
-  const solverProps = new SolverProps(part1, part2);
+  const solverProps = new SolverProps(part1, part2, "Test02.txt");
 
   const evaluateInput = (input: string, isPart2: boolean): string => {
     const lines: string[] = input.split('\n'); 

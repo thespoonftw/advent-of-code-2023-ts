@@ -11,7 +11,7 @@ export default function Render() {
     return new Grid(input).evaluateGears().toString();
   }
 
-  const solverProps = new SolverProps(part1, part2);
+  const solverProps = new SolverProps(part1, part2, "Test03.txt");
   
   return (
     <PageLayout pageTitle={"Day 03: Gear Ratios"} >

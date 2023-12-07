@@ -17,19 +17,31 @@ export default function Render() {
     return calculateTotalBid(cards).toString();
   }
 
-  const solverProps = new SolverProps(part1, part2);
+  const solverProps = new SolverProps(part1, part2, "Test07.txt");
   const [shownCards, setCards] = useState<CamelCard[]>([]);
   
   return (
     <PageLayout pageTitle={"Day 07: Camel Cards"} >
       <Solver solverProps={solverProps} />
       <WorkingBox>
-        {shownCards && shownCards.map((value, index) => (
-            <div key={index}>
-              <span>{String(shownCards.length - index).padStart(4, '\u00A0')}</span> | {value.str} | {String(value.bid).padStart(3, '\u00A0')} | {value.level}
-            </div>
-          ))
-        }
+        <div>
+          <div><b>&nbsp;Rank</b> | <b>Hand&nbsp;</b> | <b>Bid</b> | <b>Level</b> </div>
+          <div>{String("").padStart(40, '-')}</div>
+          {shownCards && shownCards.map((value, index) => (
+              <div key={index}>
+                <span>
+                  &nbsp;
+                  {String(shownCards.length - index).padEnd(4, '\u00A0')}</span>
+                  &nbsp;|&nbsp;
+                  {value.str}
+                  &nbsp;|&nbsp;
+                  {String(value.bid).padEnd(3, '\u00A0')}
+                  &nbsp;|&nbsp;
+                  {value.level}
+              </div>
+            ))
+          }
+        </div>
       </WorkingBox>      
     </PageLayout>
   );
@@ -40,8 +52,6 @@ function getSortedCards(input: string, useJokers: boolean) : CamelCard[] {
     const cards = lines.map(l => new CamelCard(l, useJokers));
     cards.sort((a, b) => a.compare(b));
     return cards;
-
-    
 }
 
 function calculateTotalBid(cards: CamelCard[]) : number {

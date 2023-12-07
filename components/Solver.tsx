@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from './Solver.module.css';
 
 export class SolverProps {
 
-  constructor(solvePart1: (text: string) => string, solvePart2: (text: string) => string) {
-    this.solvePart1 = solvePart1;
-    this.solvePart2 = solvePart2;
-  }
-
   solvePart1: (text: string) => string;
   solvePart2: (text: string) => string;
+  testDataFileName?: string;
+
+  constructor(solvePart1: (text: string) => string, solvePart2: (text: string) => string, testDataFileName?: string) {
+    this.solvePart1 = solvePart1;
+    this.solvePart2 = solvePart2;
+    this.testDataFileName = testDataFileName;
+  }
+
 }
+  
 
 export default function Solver({ solverProps }: {solverProps: SolverProps}) {
 
@@ -33,6 +37,25 @@ export default function Solver({ solverProps }: {solverProps: SolverProps}) {
     setResult(solverProps.solvePart2(inputText));
     setTimer((performance.now() - start).toFixed(1));
   };
+
+  useEffect(() => {
+    if (solverProps.testDataFileName) {
+      fetch("/test_data/" + solverProps.testDataFileName).then(
+        r => { return r.blob()}
+      ).then(
+        b => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const text = reader.result;
+            if (typeof text === "string") {
+              setInputText(text);
+            }
+          }
+          reader.readAsText(b);
+        }
+      );
+    }
+  }, []);
   
   return (
     <div>

@@ -22,7 +22,7 @@ export default function Render() {
     return race.winRange.toString();
   }
 
-  const solverProps = new SolverProps(part1, part2);
+  const solverProps = new SolverProps(part1, part2, "Test06.txt");
   const [shownRaces, setRaces] = useState<Race[]>([]);
   
   return (
@@ -30,9 +30,35 @@ export default function Render() {
       <Day6Sim/>
       <Solver solverProps={solverProps} />
       <WorkingBox>
+      <div>
+        &nbsp;
+        <b>{String("#").padEnd(4, '\u00A0')}</b> 
+        &nbsp;|&nbsp;
+        <b>{String("Time").padEnd(10, '\u00A0')}</b>
+        &nbsp;|&nbsp;
+        <b>{String("Dist").padEnd(10, '\u00A0')}</b>
+        &nbsp;|&nbsp;
+        <b>{String("Min").padEnd(10, '\u00A0')}</b>
+        &nbsp;|&nbsp;
+        <b>{String("Max").padEnd(10, '\u00A0')}</b>
+        &nbsp;|&nbsp;
+        <b>{String("Range").padEnd(10, '\u00A0')}</b>
+      </div>
+      <div>{String("").padStart(72, '-')}</div>
       {shownRaces && shownRaces.map((value, index) => (
             <div key={index}>
-              Race: {index} | Time: {value.time} | Dist: {value.distance} | Min: {value.lower} | Max: {value.upper} | Range: {value.winRange}
+              &nbsp;
+              {String(index).padEnd(4, '\u00A0')}
+              &nbsp;|&nbsp; 
+              {String(value.time).padEnd(10, '\u00A0')}
+              &nbsp;|&nbsp; 
+              {String(value.distance).padEnd(10, '\u00A0')}
+              &nbsp;|&nbsp;
+              {String(value.lower).padEnd(10, '\u00A0')}
+              &nbsp;|&nbsp;
+              {String(value.upper).padEnd(10, '\u00A0')}
+              &nbsp;|&nbsp;
+              {value.winRange}
             </div>
           ))
         }

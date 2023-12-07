@@ -15,7 +15,7 @@ export default function Render() {
     return almanac.getLowestLocation(seedRanges).toString();
   }
 
-  const solverProps = new SolverProps(part1, part2);
+  const solverProps = new SolverProps(part1, part2, "Test05.txt");
   
   return (
     <PageLayout pageTitle={"Day 05: If You Give A Seed A Fertilizer"} >
