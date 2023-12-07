@@ -2,8 +2,9 @@ import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver, { SolverProps } from '../components/Solver';
 import WorkingBox from '../components/WorkingBox';
+import Day6Sim from '../components/Day6Sim';
 
-export default function Day04() {
+export default function Render() {
 
   const part1 = (input: string): string => {
     const races = parseRaces(input);
@@ -26,6 +27,7 @@ export default function Day04() {
   
   return (
     <PageLayout pageTitle={"Day 06: Wait For It"} >
+      <Day6Sim/>
       <Solver solverProps={solverProps} />
       <WorkingBox>
       {shownRaces && shownRaces.map((value, index) => (
@@ -34,7 +36,7 @@ export default function Day04() {
             </div>
           ))
         }
-      </WorkingBox>
+      </WorkingBox>      
     </PageLayout>
   );
 }

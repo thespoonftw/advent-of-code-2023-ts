@@ -4,7 +4,7 @@ import PageLayout from '../components/PageLayout';
 import Solver, { SolverProps } from '../components/Solver';
 import WorkingBox from '../components/WorkingBox';
 
-export default function Day01() { 
+export default function Render() { 
 
   const [values, setValues] = useState<CalibrationValue[]>([]);
 

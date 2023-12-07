@@ -1,11 +1,18 @@
 
 .label {
+  margin-top: 5px;
   min-width: 100px;
 }
 
 .row {
   display: flex;
   padding-bottom: 20px;
+}
+
+.centeredRow {
+  display: flex;
+  padding-bottom: 20px;
+  align-items: center;
 }
 
 .input {
@@ -23,12 +30,24 @@
   padding: 5px;
 }
 
+.inputField {
+  width: 45px;
+  padding: 5px;
+  text-align: center;
+  margin-right: 10px;
+}
+
 .result {
   width: 100px;
   background-color: lightgray;
   outline-color: black;
   outline-width: 1px;
   text-align: center;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.timer {
   padding: 5px;
 }
 
@@ -43,4 +62,25 @@
   color: black;
   padding: 2px;
   white-space: nowrap;
+}
+
+.flexGrow {
+  flex-grow: 1;
+}
+
+.sim {
+  background-color: #666666;
+  flex-grow: 1;
+  resize: vertical;
+  text-align: center;
+}
+
+.horizontal {
+  overflow-x: auto; 
+  white-space: nowrap;
+}
+
+.simCanvas {
+  width: 100%;
+  image-rendering: pixelated;
 }

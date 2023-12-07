@@ -1,7 +1,7 @@
 import PageLayout from '../components/PageLayout';
 import Solver, { SolverProps } from '../components/Solver';
 
-export default function Day04() {
+export default function Render() {
 
   const part1 = (input: string): string => {
     const seeds = getSeeds(input);

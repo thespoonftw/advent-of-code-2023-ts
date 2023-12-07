@@ -16,17 +16,22 @@ export default function Solver({ solverProps }: {solverProps: SolverProps}) {
 
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState('-');
+  const [timer, setTimer] = useState('');
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(event.target.value);
   };
 
   const handlePart1Click = () => {
+    const start = performance.now();
     setResult(solverProps.solvePart1(inputText));
+    setTimer((performance.now() - start).toFixed(1));
   };
 
   const handlePart2Click = () => {
+    const start = performance.now();
     setResult(solverProps.solvePart2(inputText));
+    setTimer((performance.now() - start).toFixed(1));
   };
   
   return (
@@ -46,6 +51,9 @@ export default function Solver({ solverProps }: {solverProps: SolverProps}) {
       <div className={styles.row}>
         <div className={styles.label}>Result:</div>
         <div className={styles.result}>{result}</div>
+        {
+          timer && <div className={styles.timer}> in {timer} ms</div>
+        }        
       </div>
 
         

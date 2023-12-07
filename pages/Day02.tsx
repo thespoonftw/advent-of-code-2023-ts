@@ -1,7 +1,7 @@
 import PageLayout from '../components/PageLayout';
 import Solver, { SolverProps } from '../components/Solver';
 
-export default function Day02() {
+export default function Render() {
 
   const maxRed = 12;
   const maxGreen = 13;
