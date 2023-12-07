@@ -1,21 +1,50 @@
+import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver, { SolverProps } from '../components/Solver';
+import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
   const part1 = (input: string): string => {
-    return new Grid(input).evaluateAdjacentParts().toString();
+    const g = new Grid(input);
+    const value = g.evaluateAdjacentParts();
+    setGrid(g);
+    return value.toString();
   }
 
   const part2 = (input: string): string => {
-    return new Grid(input).evaluateGears().toString();
+    const g = new Grid(input);
+    const value = g.evaluateGears();
+    setGrid(g);
+    return value.toString();
   }
 
   const solverProps = new SolverProps(part1, part2, "Test03.txt");
+  const [grid, setGrid] = useState<Grid>(new Grid(""));
+  const getFontSize = () : number => { return grid && grid.width > 20 ? 8 : 14; }
   
   return (
     <PageLayout pageTitle={"Day 03: Gear Ratios"} >
       <Solver solverProps={solverProps} />
+      <WorkingBox>
+        {
+          grid && <div style={{fontSize: getFontSize()}}>{
+            Array.from({ length: grid.width }).map((_, y) => (
+              <div>{
+                Array.from({ length: grid.height }).map((_, x) => (
+                  <>{
+                    grid.cells[x][y].isHighlighted ?
+                    <span style={{color: "red", fontWeight: "bold"}}>{grid.cells[x][y].c}</span>
+                    :
+                    <span>{grid.cells[x][y].c}</span>
+                  }</>
+                ))
+              }</div>
+            ))
+          }</div>
+        }
+        <div></div>
+      </WorkingBox>
     </PageLayout>
   );
 }
@@ -23,27 +52,31 @@ export default function Render() {
 class Grid {
 
   symbols: Symbol[];
-  numbers: Map<string, PartNumber>;
   width: number;
   height: number;
+  cells: Cell[][];
 
   constructor(input: string) {
 
-    const lines = input.split("\n");
+    const lines = input.split("\n").map(l => l.trim());
     this.height = lines.length;
     this.width = lines[0].length;
-
     this.symbols = [];
-    this.numbers = new Map();
-
     let numberString = "";
     let numberStartX = 0;
     let isSavingNumber = false;
+    this.cells = Array.from({ length: this.height }, () => Array.from({ length: this.width }, () => new Cell()));
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x <= this.width; x++) {
-      
-        let c = x < this.width ? (lines[y])[x] : ".";
+
+        let c = ".";
+
+        if (x < this.width) {
+          c = (lines[y])[x];
+          this.cells[x][y].setChar(c);
+        }
+
         let isDigit = /^\d$/.test(c);
 
         if (isDigit) {
@@ -61,11 +94,10 @@ class Grid {
           if (isSavingNumber) {
 
             const value = parseInt(numberString);
-            const num = new PartNumber(value);
+            const num = new PartNumber(numberStartX, y, value);
 
             for (let i = numberStartX; i < x; i++) {
-              const key = createKey(i, y);
-              this.numbers.set(key, num);
+              this.cells[i][y].setPartNumber(num);
             }
             
             isSavingNumber = false;
@@ -87,7 +119,9 @@ class Grid {
     const set = new Set<PartNumber>();
 
     for (const symbol of this.symbols) {
+      this.highlightSymbol(symbol);
       for (const adj of this.getAdjacentNumbers(symbol)) {
+        this.highlightNumber(adj);
         set.add(adj);
       }
     }
@@ -107,8 +141,10 @@ class Grid {
     for (const symbol of this.symbols) {
 
       if (symbol.c !== '*') { continue; }
+      this.highlightSymbol(symbol);
       const adjs = this.getAdjacentNumbers(symbol);
       if (adjs.size !== 2) { continue; }
+      adjs.forEach(a => this.highlightNumber(a));
       const arr:PartNumber[] = [...adjs];
       const product = arr[0].value * arr[1].value;
       sum += product;
@@ -126,8 +162,7 @@ class Grid {
         const x = symbol.x + i;
         const y = symbol.y + j;
         if (x < 0 || y < 0 || x >= this.width || y >= this.height) { continue; }
-        const key = createKey(x, y);
-        const number = this.numbers.get(key);
+        const number = this.cells[x][y].partNumber;
         if (number) { set.add(number); }
       }
     }
@@ -136,30 +171,54 @@ class Grid {
 
   }
 
+  highlightNumber(number: PartNumber) {
+    for (let i = number.x; i < number.x + number.value.toString().length; i++) {
+      this.cells[i][number.y].isHighlighted = true;
+    }
+  }
+
+  highlightSymbol(symbol: Symbol) {
+    this.cells[symbol.x][symbol.y].isHighlighted = true;
+  }
+
 }
 
+class Cell {
+  c: string = ".";
+  partNumber?: PartNumber;
+  isHighlighted: boolean = false;
 
+  setPartNumber(partNumber: PartNumber) {
+    this.partNumber = partNumber;
+  }
 
-function createKey(x: number, y: number) {
-  return `${x}_${y}`;
+  setChar(c: string) {
+    this.c = c;
+  }
 }
 
 class Symbol {
+  x: number;
+  y: number;
+  c: string;
+
   constructor(x: number, y:number, c:string) {
     this.x = x;
     this.y = y;
     this.c = c;
   }
 
-  x: number;
-  y: number;
-  c: string;
+  
 }
 
 class PartNumber {
-  constructor(value: number) {
+  value: number;
+  x: number;
+  y: number;
+
+  constructor(x: number, y: number, value: number) {
+    this.x = x;
+    this.y = y;
     this.value = value;
   }
-
-  value: number;
 }
