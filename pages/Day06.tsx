@@ -6,7 +6,7 @@ import Day6Sim from '../components/Day6Sim';
 
 export default function Render() {
 
-  const part1 = (input: string): string => {
+  const part1 = (input: string[]): string => {
     const races = parseRaces(input);
     setRaces(races);
     let product = 1;
@@ -16,7 +16,7 @@ export default function Render() {
     return product.toString();
   }
 
-  const part2 = (input: string): string => {
+  const part2 = (input: string[]): string => {
     const race = parseMegaRace(input);
     setRaces([race]);
     return race.winRange.toString();
@@ -67,10 +67,9 @@ export default function Render() {
   );
 }
 
-function parseRaces(input: string): Race[] {
-  const lines = input.split("\n");
-  const times = lines[0].split(" ").filter(v => v != "").filter(v => v !== "Time:").map(v => parseInt(v));
-  const distances = lines[1].split(" ").filter(v => v != "").filter(v => v !== "Distance:").map(v => parseInt(v));
+function parseRaces(input: string[]): Race[] {
+  const times = input[0].split(" ").filter(v => v != "").filter(v => v !== "Time:").map(v => parseInt(v));
+  const distances = input[1].split(" ").filter(v => v != "").filter(v => v !== "Distance:").map(v => parseInt(v));
 
   let returner: Race[] = [];
   for (let i=0; i<times.length; i++) {
@@ -79,10 +78,9 @@ function parseRaces(input: string): Race[] {
   return returner;
 }
 
-function parseMegaRace(input: string): Race {
-  const lines = input.split("\n");
-  const t = parseInt(lines[0].replace(/\D/g, ''));
-  const d = parseInt(lines[1].replace(/\D/g, ''));
+function parseMegaRace(input: string[]): Race {
+  const t = parseInt(input[0].replace(/\D/g, ''));
+  const d = parseInt(input[1].replace(/\D/g, ''));
   return new Race(t, d);
 }
 

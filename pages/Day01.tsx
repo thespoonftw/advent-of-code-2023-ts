@@ -8,14 +8,14 @@ export default function Render() {
 
   const [values, setValues] = useState<CalibrationValue[]>([]);
 
-  const part1 = (input: string): string => {
-    const values = input.split('\n').map(s => new CalibrationValue(s, true));
+  const part1 = (input: string[]): string => {
+    const values = input.map(s => new CalibrationValue(s, true));
     setValues(values);
     return getSumOfValues(values).toString();
   }
   
-  const part2 = (input: string): string => {
-    const values = input.split('\n').map(s => new CalibrationValue(s, false));
+  const part2 = (input: string[]): string => {
+    const values = input.map(s => new CalibrationValue(s, false));
     setValues(values);
     return getSumOfValues(values).toString();
   }

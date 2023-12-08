@@ -5,14 +5,14 @@ import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
-  const part1 = (input: string): string => {
+  const part1 = (input: string[]): string => {
     const g = new Grid(input);
     const value = g.evaluateAdjacentParts();
     setGrid(g);
     return value.toString();
   }
 
-  const part2 = (input: string): string => {
+  const part2 = (input: string[]): string => {
     const g = new Grid(input);
     const value = g.evaluateGears();
     setGrid(g);
@@ -20,7 +20,7 @@ export default function Render() {
   }
 
   const solverProps = new SolverProps(part1, part2, "Test03.txt");
-  const [grid, setGrid] = useState<Grid>(new Grid(""));
+  const [grid, setGrid] = useState<Grid>(new Grid([]));
   const getFontSize = () : number => { return grid && grid.width > 20 ? 8 : 14; }
   
   return (
@@ -56,11 +56,10 @@ class Grid {
   height: number;
   cells: Cell[][];
 
-  constructor(input: string) {
+  constructor(input: string[]) {
 
-    const lines = input.split("\n").map(l => l.trim());
-    this.height = lines.length;
-    this.width = lines[0].length;
+    this.height = input.length;
+    this.width = this.height ? input[0].length : 0;
     this.symbols = [];
     let numberString = "";
     let numberStartX = 0;
@@ -73,7 +72,7 @@ class Grid {
         let c = ".";
 
         if (x < this.width) {
-          c = (lines[y])[x];
+          c = (input[y])[x];
           this.cells[x][y].setChar(c);
         }
 

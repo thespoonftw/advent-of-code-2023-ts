@@ -5,13 +5,13 @@ import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
-  const part1 = (input: string): string => {
+  const part1 = (input: string[]): string => {
     const cards = getSortedCards(input, false);
     setCards(cards);
     return calculateTotalBid(cards).toString();
   }
 
-  const part2 = (input: string): string => {
+  const part2 = (input: string[]): string => {
     const cards = getSortedCards(input, true);
     setCards(cards);
     return calculateTotalBid(cards).toString();
@@ -47,9 +47,8 @@ export default function Render() {
   );
 }
 
-function getSortedCards(input: string, useJokers: boolean) : CamelCard[] {
-  const lines = input.split("\n");
-    const cards = lines.map(l => new CamelCard(l, useJokers));
+function getSortedCards(input: string[], useJokers: boolean) : CamelCard[] {
+    const cards = input.map(l => new CamelCard(l, useJokers));
     cards.sort((a, b) => a.compare(b));
     return cards;
 }

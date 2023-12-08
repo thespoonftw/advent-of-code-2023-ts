@@ -1,47 +1,87 @@
+import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver, { SolverProps } from '../components/Solver';
+import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
-  const part1 = (input: string): string => {
-    const seeds = getSeeds(input);
-    const almanac = new Almanac(input);
-    return almanac.getLowestLocation(seeds).toString();
+  const part1 = (input: string[]): string => {
+    const seedIds = getSeeds(input[0]);
+    return findLowestLocation(input, seedIds).toString();
   }
 
-  const part2 = (input: string): string => {
-    const seedRanges = getSeedRanges(input);
+  const part2 = (input: string[]): string => {
+    const seedRanges = getSeedRanges(input[0]);
+    return findLowestLocation(input, seedRanges).toString();
+  }
+
+  const findLowestLocation = (input: string[], inputSeeds: Range[]): number => {
     const almanac = new Almanac(input);
-    return almanac.getLowestLocation(seedRanges).toString();
+    const locations = almanac.processSeedData(inputSeeds);
+    const histories = locations.map(l => almanac.findSeedHistory(l));
+    setSeeds(histories);
+    return Math.min(...locations.map(l => l.min));
   }
 
   const solverProps = new SolverProps(part1, part2, "Test05.txt");
-  
+  const [seeds, setSeeds] = useState<SeedHistory[]>([]);
+  const columnWidth = () : number => { return seeds.length > 0 ? Math.max(6, Math.max(...seeds.map(s => s.values[0])).toString().length) : 0; }
+  const columnNames = [ "Seed", "Soil", "Fert.", "Water", "Light", "Temp.", "Humid.", "Loc." ];
+
   return (
     <PageLayout pageTitle={"Day 05: If You Give A Seed A Fertilizer"} >
       <Solver solverProps={solverProps} />
+      <WorkingBox>
+        { seeds && <>
+          <div>
+            &nbsp;
+            { columnNames.map((title, index) => (<>
+              <b>{String(title).padEnd(columnWidth(), '\u00A0')}</b>
+              {index < columnNames.length - 1 && <>&nbsp;|&nbsp;</>}
+            </>))}
+          </div>
+          <div>{String("").padStart((columnWidth() + 3) * 8, '-')}</div>
+          <div>
+            {
+              seeds.map((seed, index) => (
+                <div>
+                  &nbsp;
+                  {
+                    seed.values.map((value, index2) => (
+                      <span>
+                        {String(value).padEnd(columnWidth(), '\u00A0')}
+                        {index2 < seed.values.length - 1 && <>&nbsp;|&nbsp;</>}
+                      </span>                    
+                    ))
+                  }
+                </div>
+              ))
+            }
+          </div>
+        </> }
+      </WorkingBox>
     </PageLayout>
   );
 }
 
 function getSeeds(input: string) : Range[] {
-  return input.split("\n")[0].split(" ").slice(1).map(s => parseInt(s)).map(i => new Range(i, i+1));
+  return input.split(" ").slice(1).map(s => parseInt(s)).map(i => new Range(i, i+1));
 }
 
 function getSeedRanges(input: string) : Range[] {
-  const seeds = input.split("\n")[0].split(" ").slice(1).map(s => parseInt(s));
+  const seeds = input.split(" ").slice(1).map(s => parseInt(s));
   const seedRanges:Range[] = [];
   for (let i = 0; i < seeds.length; i += 2) {
     seedRanges.push(new Range(seeds[i], seeds[i]+seeds[i + 1]));
   }
+  seedRanges.sort((a, b) => a.min - b.min);
   return seedRanges;
 }
 
 class Almanac {
   mappers: Mapper[];
 
-  constructor(input: string) {
-    const lines = input.split("\n");
+  constructor(lines: string[]) {
     this.mappers = [];
 
     let startOfMapLine = 1;
@@ -63,12 +103,20 @@ class Almanac {
     return mapped;
   }
 
-  getLowestLocation(seedRanges: Range[]) : number {
-    let locationRanges = this.processSeedData(seedRanges);
-    return Math.min(...locationRanges.map(m => m.min));
+  findSeedHistory(location: Range): SeedHistory {
+
+    let currentValue = location.min;
+    const arr = [];
+    arr.push(currentValue);
+
+    for (let i=this.mappers.length-1; i >=0; i--) {
+      const mapper = this.mappers[i];
+      currentValue = mapper.reverseMap(currentValue);
+      arr.push(currentValue);
+    }
+
+    return new SeedHistory(arr.reverse());
   }
-
-
 }
 
 class Mapper {
@@ -79,9 +127,17 @@ class Mapper {
     this.filters.sort((a, b) => a.min - b.min);
   }
 
+  reverseMap(value: number) : number {
+    for (const filter of this.filters) {
+      if (value >= filter.min + filter.translator && value <= filter.max + filter.translator) {
+        return value - filter.translator;
+      }
+    }
+    return value;
+  }
+
   mapRanges(ranges: Range[]) : Range[] {
 
-    ranges.sort((a, b) => a.min - b.min);
     let i = 0;
     let j = 0;
     let current = ranges[0];
@@ -136,8 +192,9 @@ class Mapper {
       }
     }
 
+    returner.sort((a, b) => a.min - b.min);
     return returner;    
-  }
+  }  
 }
 
 class Filter {
@@ -160,9 +217,18 @@ class Filter {
 class Range {
   min: number;
   max: number;
+
   constructor(min: number, max: number) {
     this.min = min;
     this.max = max;
+  }
+}
+
+class SeedHistory {
+  values: number[];
+
+  constructor(values: number[]) {
+    this.values = values;
   }
 }
 

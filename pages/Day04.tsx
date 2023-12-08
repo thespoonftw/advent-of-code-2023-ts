@@ -5,18 +5,18 @@ import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
-  const part1 = (input: string): string => {
-    const cards = input.split("\n").map(l => new Scratchcard(l));
+  const part1 = (input: string[]): string => {
+    const cards = input.map(l => new Scratchcard(l));
     setScratchCards(cards);
     console.log(cards);
     const totalScore = cards.reduce((acc, card) => acc + card.score, 0);
     return totalScore.toString();
   }
 
-  const part2 = (input: string): string => {
-    let cards = input.split("\n").map(l => new Scratchcard(l));
+  const part2 = (input: string[]): string => {
+    let cards = input.map(l => new Scratchcard(l));
     setScratchCards(cards);
-    return countWinMoreScratchCards(input).toString();
+    return countWinMoreScratchCards(cards).toString();
   }
 
   const solverProps = new SolverProps(part1, part2, "Test04.txt");
@@ -121,10 +121,9 @@ class Scratchcard {
   }
 }
 
-function countWinMoreScratchCards(input: string) : number {
+function countWinMoreScratchCards(cards: Scratchcard[]) : number {
 
-  const lines = input.split("\n");
-  const l = lines.length;
+  const l = cards.length;
   const ticketCounts = [];
   const maxMatches = 5;
 
@@ -135,9 +134,8 @@ function countWinMoreScratchCards(input: string) : number {
   let i = 0;
   for (let i = 1; i <= l; i++) {
 
-    const line = lines[i-1];
+    const matches = cards[i-1].matches;
     const ticketCount = ticketCounts[i];
-    const matches = new Scratchcard(line).matches;
 
     for (let j = i + 1; j <= i + matches; j++) {
       ticketCounts[j] += ticketCount;
