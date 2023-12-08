@@ -1,11 +1,10 @@
-import styles from '../styles/Home.module.css';
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
 
 export default function Render() { 
 
-  const [values, setValues] = useState<CalibrationValue[]>([]);
+  const [values, setValues] = useState<CalibrationValue[] | null>(null);
 
   const part1 = (input: string[]): number => {
     const values = input.map(s => new CalibrationValue(s, true));
@@ -23,9 +22,10 @@ export default function Render() {
     <PageLayout pageTitle={"Day 01: Trebuchet?!"} >
       
       <Solver part1={part1} part2={part2} testFile="Test01.txt" >
-        <div><b>&nbsp;Row</b> | <b>#&nbsp;</b> | <b>String</b> </div>
-        <div>{String("").padStart(72, '-')}</div>
-        {values && values.map((value, index) => (
+        { values && <div>
+          <div><b>&nbsp;Row</b> | <b>#&nbsp;</b> | <b>String</b> </div>
+          <div>{String("").padStart(72, '-')}</div>
+          { values.map((value, index) => (
             <div key={index} style={{position: "relative"}}>
               <HighlightRow index={value.leftValue.index} length={value.leftValue.length} color='rgba(255, 0, 0, 0.25)' />
               <HighlightRow index={value.rightValue.index} length={value.rightValue.length} color='rgba(0, 0, 255, 0.25)' />
@@ -37,8 +37,8 @@ export default function Render() {
               &nbsp;|&nbsp;
               {value.inputString}
             </div>
-          ))
-        }
+          ))}
+        </div>}
       </Solver>
       
     </PageLayout>

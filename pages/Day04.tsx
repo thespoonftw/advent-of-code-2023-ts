@@ -17,7 +17,7 @@ export default function Render() {
     return countWinMoreScratchCards(cards);
   }
 
-  const [scratchCards, setScratchCards] = useState<Scratchcard[]>([]);
+  const [scratchCards, setScratchCards] = useState<Scratchcard[] | null>(null);
   const getScratchedLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].scratchNumbersStr.length : 10; }
   const getWinningLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].winningNumbersStr.length : 10; }
   

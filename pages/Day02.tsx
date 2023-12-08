@@ -7,7 +7,7 @@ export default function Render() {
 
   const part1 = (input: string[]): number => {
     const games = input.map(l => new Game(l));
-    setPart1(true);
+    setPart(1);
     setGames(games);
     games.forEach(g => g.setValid(maxRed, maxGreen, maxBlue));
     return games.filter(g => g.isValid).map(g => g.gameNumber).reduce((acc, v) => acc + v);
@@ -15,12 +15,12 @@ export default function Render() {
 
   const part2 = (input: string[]): number => {
     const games = input.map(l => new Game(l));
-    setPart1(false);
+    setPart(2);
     setGames(games);  
     return games.map(g => g.minR * g.minG * g.minB).reduce((acc, v) => acc + v);
   }
 
-  const [isPart1, setPart1] = useState<boolean>(true);
+  const [part, setPart] = useState<number | null>(null);
   const [shownGames, setGames] = useState<Game[]>([]);
   const [maxRed, setMaxRed] = useState<number>(12);
   const [maxGreen, setMaxGreen] = useState<number>(13);
@@ -28,7 +28,7 @@ export default function Render() {
   const handleRedChange = (event: ChangeEvent<HTMLInputElement>) => { setMaxRed(parseInt(event.target.value)); }
   const handleGreenChange = (event: ChangeEvent<HTMLInputElement>) => { setMaxGreen(parseInt(event.target.value)); }
   const handleBlueChange = (event: ChangeEvent<HTMLInputElement>) => { setMaxBlue(parseInt(event.target.value)); }
-  const getLineLength = () : number => { return shownGames ? Math.max(...shownGames.map(g => g.str.length)) + (isPart1 ? 15 : 25) : 0; }
+  const getLineLength = () : number => { return shownGames ? Math.max(...shownGames.map(g => g.str.length)) + (part === 1 ? 15 : 25) : 0; }
   
   return (
     <PageLayout pageTitle={"Day 02: Cube Conundrum"} >
@@ -46,13 +46,16 @@ export default function Render() {
         </div>
       </div>
       <Solver part1={part1} part2={part2} testFile='Test02.txt'>
+        { part && <>
         <div>
           &nbsp;
           <b>{String("#").padEnd(3, '\u00A0')}</b>
           &nbsp;|&nbsp;
-          { isPart1 ?
+          { part === 1 &&
             <b>Valid&nbsp;</b>
-            :
+          }
+          {
+            part === 2 &&
             <>
               <b>{String("R").padEnd(3, '\u00A0')}</b>
               &nbsp;|&nbsp;
@@ -65,33 +68,36 @@ export default function Render() {
           <b>Contents</b> 
         </div>
         <div>{String("").padStart(getLineLength(), '-')}</div>
-      { shownGames && shownGames.map((game, index) => (
-        <div key={index}>
-          &nbsp;
-          {String(game.gameNumber).padEnd(3, '\u00A0')}
-          &nbsp;|&nbsp;
-          {
-            isPart1 ?
-            <>{
-              game.isValid 
-              ?
-              <span style={{color: "green"}}>True&nbsp;&nbsp;</span>
-              :
-              <span style={{color: "red"}}>False&nbsp;</span>             
-            }</>
-            :
-            <>
-              {String(game.minR).padEnd(3, '\u00A0')}
-              &nbsp;|&nbsp;
-              {String(game.minG).padEnd(3, '\u00A0')}
-              &nbsp;|&nbsp;
-              {String(game.minB).padEnd(3, '\u00A0')}
-            </>
-          }
-          &nbsp;|&nbsp;
-          {game.str}
-        </div>
-      ))}
+        { shownGames && shownGames.map((game, index) => (
+          <div key={index}>
+            &nbsp;
+            {String(game.gameNumber).padEnd(3, '\u00A0')}
+            &nbsp;|&nbsp;
+            {
+              part === 1 &&
+              <>{
+                game.isValid 
+                ?
+                <span style={{color: "green"}}>True&nbsp;&nbsp;</span>
+                :
+                <span style={{color: "red"}}>False&nbsp;</span>             
+              }</>
+            }
+            {
+              part === 2 &&
+              <>
+                {String(game.minR).padEnd(3, '\u00A0')}
+                &nbsp;|&nbsp;
+                {String(game.minG).padEnd(3, '\u00A0')}
+                &nbsp;|&nbsp;
+                {String(game.minB).padEnd(3, '\u00A0')}
+              </>
+            }
+            &nbsp;|&nbsp;
+            {game.str}
+          </div>
+        ))}
+      </>}
       </Solver>
     </PageLayout>
   );

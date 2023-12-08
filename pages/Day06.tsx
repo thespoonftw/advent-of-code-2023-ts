@@ -21,44 +21,46 @@ export default function Render() {
     return race.winRange;
   }
 
-  const [shownRaces, setRaces] = useState<Race[]>([]);
+  const [races, setRaces] = useState<Race[] | null>(null);
   
   return (
     <PageLayout pageTitle={"Day 06: Wait For It"} >
       <Day6Sim/>
       <Solver part1={part1} part2={part2} testFile='Test06.txt' >
-      <div>
-        &nbsp;
-        <b>{String("#").padEnd(4, '\u00A0')}</b> 
-        &nbsp;|&nbsp;
-        <b>{String("Time").padEnd(10, '\u00A0')}</b>
-        &nbsp;|&nbsp;
-        <b>{String("Dist").padEnd(10, '\u00A0')}</b>
-        &nbsp;|&nbsp;
-        <b>{String("Min").padEnd(10, '\u00A0')}</b>
-        &nbsp;|&nbsp;
-        <b>{String("Max").padEnd(10, '\u00A0')}</b>
-        &nbsp;|&nbsp;
-        <b>{String("Range").padEnd(10, '\u00A0')}</b>
-      </div>
-      <div>{String("").padStart(72, '-')}</div>
-      {shownRaces && shownRaces.map((value, index) => (
-            <div key={index}>
-              &nbsp;
-              {String(index).padEnd(4, '\u00A0')}
-              &nbsp;|&nbsp; 
-              {String(value.time).padEnd(10, '\u00A0')}
-              &nbsp;|&nbsp; 
-              {String(value.distance).padEnd(10, '\u00A0')}
-              &nbsp;|&nbsp;
-              {String(value.lower).padEnd(10, '\u00A0')}
-              &nbsp;|&nbsp;
-              {String(value.upper).padEnd(10, '\u00A0')}
-              &nbsp;|&nbsp;
-              {value.winRange}
-            </div>
-          ))
-        }
+        { races && <>
+          <div>
+          &nbsp;
+          <b>{String("#").padEnd(4, '\u00A0')}</b> 
+          &nbsp;|&nbsp;
+          <b>{String("Time").padEnd(10, '\u00A0')}</b>
+          &nbsp;|&nbsp;
+          <b>{String("Dist").padEnd(10, '\u00A0')}</b>
+          &nbsp;|&nbsp;
+          <b>{String("Min").padEnd(10, '\u00A0')}</b>
+          &nbsp;|&nbsp;
+          <b>{String("Max").padEnd(10, '\u00A0')}</b>
+          &nbsp;|&nbsp;
+          <b>{String("Range").padEnd(10, '\u00A0')}</b>
+        </div>
+        <div>{String("").padStart(72, '-')}</div>
+        {races && races.map((value, index) => (
+              <div key={index}>
+                &nbsp;
+                {String(index).padEnd(4, '\u00A0')}
+                &nbsp;|&nbsp; 
+                {String(value.time).padEnd(10, '\u00A0')}
+                &nbsp;|&nbsp; 
+                {String(value.distance).padEnd(10, '\u00A0')}
+                &nbsp;|&nbsp;
+                {String(value.lower).padEnd(10, '\u00A0')}
+                &nbsp;|&nbsp;
+                {String(value.upper).padEnd(10, '\u00A0')}
+                &nbsp;|&nbsp;
+                {value.winRange}
+              </div>
+            ))
+          }
+        </>}
       </Solver>      
     </PageLayout>
   );

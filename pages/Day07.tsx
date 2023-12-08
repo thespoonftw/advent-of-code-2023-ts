@@ -16,12 +16,13 @@ export default function Render() {
     return calculateTotalBid(cards);
   }
 
-  const [shownCards, setCards] = useState<CamelCard[]>([]);
+  const [shownCards, setCards] = useState<CamelCard[] | null>(null);
   
   return (
     <PageLayout pageTitle={"Day 07: Camel Cards"} >
       <Solver part1={part1} part2={part2} testFile='Test07.txt'>
-        <div>
+        { shownCards && <>
+          <div>
           <div><b>&nbsp;Rank</b> | <b>Hand&nbsp;</b> | <b>Bid</b> | <b>Level</b> </div>
           <div>{String("").padStart(40, '-')}</div>
           {shownCards && shownCards.map((value, index) => (
@@ -36,9 +37,9 @@ export default function Render() {
                   &nbsp;|&nbsp;
                   {value.level}
               </div>
-            ))
-          }
-        </div>
+            ))}
+          </div>
+        </>}
       </Solver>      
     </PageLayout>
   );

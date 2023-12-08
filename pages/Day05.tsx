@@ -22,8 +22,8 @@ export default function Render() {
     return Math.min(...locations.map(l => l.min));
   }
 
-  const [seeds, setSeeds] = useState<SeedHistory[]>([]);
-  const columnWidth = () : number => { return seeds.length > 0 ? Math.max(6, Math.max(...seeds.map(s => s.values[0])).toString().length) : 0; }
+  const [seeds, setSeeds] = useState<SeedHistory[] | null>(null);
+  const columnWidth = () : number => { return seeds ? Math.max(6, Math.max(...seeds.map(s => s.values[0])).toString().length) : 0; }
   const columnNames = [ "Seed", "Soil", "Fert.", "Water", "Light", "Temp.", "Humid.", "Loc." ];
 
   return (

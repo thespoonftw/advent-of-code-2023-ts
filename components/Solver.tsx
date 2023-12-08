@@ -26,7 +26,9 @@ export default function Solver({ children, part1, part2, testFile }: SolverProps
     const lines = getLines(inputText);
 
     try {
-      const result = method(lines).toString();
+      const result = method(lines);
+      if (Number.isNaN(result)) { throw new Error("NaN"); }
+      if (!Number.isFinite(result)) { throw new Error("Infinity"); }
       setResult(result.toString());
     }
     catch(error) {

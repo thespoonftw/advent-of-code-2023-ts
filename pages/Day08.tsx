@@ -8,28 +8,26 @@ export default function Render() {
     const map = new NodeMap(input);
     const path = Navigate(map);
     setPath(path);
-    setPart1(true);
+    setPart(1);
     return path.length;
   }
 
   const part2 = (input: string[]): number => {
     const map = new NodeMap(input);
     const ghosts = GhostNavigate(map);
-    setPart1(false);
+    setPart(2);
     setGhosts(ghosts);
     return findLCM(ghosts.map(g => g.zVisit));
   }
 
-  const [isPart1, setPart1] = useState<boolean>(true);
+  const [part, setPart] = useState<number | null>(null);
   const [path, setPath] = useState<string[]>([])
   const [ghosts, setGhosts] = useState<Ghost[]>([])
   
   return (
     <PageLayout pageTitle={"Day 08: Haunted Wasteland"} >
       <Solver part1={part1} part2={part2} testFile='Test08.txt' > 
-        {
-          isPart1
-          ?
+        { part === 1 && 
           <div>
             {
               path && path.map((value, index) => (
@@ -41,7 +39,8 @@ export default function Render() {
               ))
             }
           </div>
-          :
+        }
+        { part === 2 && 
           <div>
             &nbsp;
             <b>Start</b>

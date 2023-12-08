@@ -24,8 +24,8 @@ export default function Render() {
   return (
     <PageLayout pageTitle={"Day 03: Gear Ratios"} >
       <Solver part1={part1} part2={part2} testFile='Test03.txt' >
-        {
-          grid && <div style={{fontSize: getFontSize()}}>{
+        { grid && 
+          <div style={{fontSize: getFontSize()}}>{
             Array.from({ length: grid.width }).map((_, y) => (
               <div key={y}>{
                 Array.from({ length: grid.height }).map((_, x) => (
@@ -40,7 +40,6 @@ export default function Render() {
             ))
           }</div>
         }
-        <div></div>
       </Solver>
     </PageLayout>
   );
