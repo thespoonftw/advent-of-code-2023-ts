@@ -1,33 +1,28 @@
 import styles from '../styles/Home.module.css';
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 
 export default function Render() { 
 
   const [values, setValues] = useState<CalibrationValue[]>([]);
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const values = input.map(s => new CalibrationValue(s, true));
     setValues(values);
-    return getSumOfValues(values).toString();
+    return getSumOfValues(values);
   }
   
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     const values = input.map(s => new CalibrationValue(s, false));
     setValues(values);
-    return getSumOfValues(values).toString();
+    return getSumOfValues(values);
   }
-  
-  const solverProps = new SolverProps(part1, part2, "Test01.txt");
 
   return (
     <PageLayout pageTitle={"Day 01: Trebuchet?!"} >
       
-      <Solver solverProps={solverProps} />
-
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile="Test01.txt" >
         <div><b>&nbsp;Row</b> | <b>#&nbsp;</b> | <b>String</b> </div>
         <div>{String("").padStart(72, '-')}</div>
         {values && values.map((value, index) => (
@@ -44,7 +39,7 @@ export default function Render() {
             </div>
           ))
         }
-      </WorkingBox>
+      </Solver>
       
     </PageLayout>
   );

@@ -11,7 +11,6 @@
 
 .centeredRow {
   display: flex;
-  padding-bottom: 20px;
   align-items: center;
 }
 
@@ -34,11 +33,11 @@
   width: 45px;
   padding: 5px;
   text-align: center;
-  margin-right: 10px;
+  margin-right: 30px;
 }
 
 .result {
-  width: 100px;
+  width: 140px;
   background-color: lightgray;
   outline-color: black;
   outline-width: 1px;
@@ -73,6 +72,7 @@
   flex-grow: 1;
   resize: vertical;
   text-align: center;
+  margin-top: 20px;
 }
 
 .horizontal {

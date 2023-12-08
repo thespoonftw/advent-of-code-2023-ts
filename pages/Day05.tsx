@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 
 export default function Render() {
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const seedIds = getSeeds(input[0]);
-    return findLowestLocation(input, seedIds).toString();
+    return findLowestLocation(input, seedIds);
   }
 
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     const seedRanges = getSeedRanges(input[0]);
-    return findLowestLocation(input, seedRanges).toString();
+    return findLowestLocation(input, seedRanges);
   }
 
   const findLowestLocation = (input: string[], inputSeeds: Range[]): number => {
@@ -23,32 +22,32 @@ export default function Render() {
     return Math.min(...locations.map(l => l.min));
   }
 
-  const solverProps = new SolverProps(part1, part2, "Test05.txt");
   const [seeds, setSeeds] = useState<SeedHistory[]>([]);
   const columnWidth = () : number => { return seeds.length > 0 ? Math.max(6, Math.max(...seeds.map(s => s.values[0])).toString().length) : 0; }
   const columnNames = [ "Seed", "Soil", "Fert.", "Water", "Light", "Temp.", "Humid.", "Loc." ];
 
   return (
     <PageLayout pageTitle={"Day 05: If You Give A Seed A Fertilizer"} >
-      <Solver solverProps={solverProps} />
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile='Test05.txt' >
         { seeds && <>
           <div>
             &nbsp;
-            { columnNames.map((title, index) => (<>
-              <b>{String(title).padEnd(columnWidth(), '\u00A0')}</b>
-              {index < columnNames.length - 1 && <>&nbsp;|&nbsp;</>}
-            </>))}
+            { columnNames.map((title, index) => (
+              <span key={index}>
+                <b>{String(title).padEnd(columnWidth(), '\u00A0')}</b>
+                {index < columnNames.length - 1 && <>&nbsp;|&nbsp;</>}
+              </span>
+            ))}
           </div>
           <div>{String("").padStart((columnWidth() + 3) * 8, '-')}</div>
           <div>
             {
               seeds.map((seed, index) => (
-                <div>
+                <div key={index}>
                   &nbsp;
                   {
                     seed.values.map((value, index2) => (
-                      <span>
+                      <span key={index2}>
                         {String(value).padEnd(columnWidth(), '\u00A0')}
                         {index2 < seed.values.length - 1 && <>&nbsp;|&nbsp;</>}
                       </span>                    
@@ -59,7 +58,7 @@ export default function Render() {
             }
           </div>
         </> }
-      </WorkingBox>
+      </Solver>
     </PageLayout>
   );
 }

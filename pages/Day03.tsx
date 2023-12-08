@@ -1,50 +1,47 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 
 export default function Render() {
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const g = new Grid(input);
     const value = g.evaluateAdjacentParts();
     setGrid(g);
-    return value.toString();
+    return value;
   }
 
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     const g = new Grid(input);
     const value = g.evaluateGears();
     setGrid(g);
-    return value.toString();
+    return value;
   }
 
-  const solverProps = new SolverProps(part1, part2, "Test03.txt");
   const [grid, setGrid] = useState<Grid>(new Grid([]));
   const getFontSize = () : number => { return grid && grid.width > 20 ? 8 : 14; }
   
   return (
     <PageLayout pageTitle={"Day 03: Gear Ratios"} >
-      <Solver solverProps={solverProps} />
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile='Test03.txt' >
         {
           grid && <div style={{fontSize: getFontSize()}}>{
             Array.from({ length: grid.width }).map((_, y) => (
-              <div>{
+              <div key={y}>{
                 Array.from({ length: grid.height }).map((_, x) => (
-                  <>{
+                  <span key={x}>{
                     grid.cells[x][y].isHighlighted ?
                     <span style={{color: "red", fontWeight: "bold"}}>{grid.cells[x][y].c}</span>
                     :
                     <span>{grid.cells[x][y].c}</span>
-                  }</>
+                  }</span>
                 ))
               }</div>
             ))
           }</div>
         }
         <div></div>
-      </WorkingBox>
+      </Solver>
     </PageLayout>
   );
 }

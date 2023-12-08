@@ -1,29 +1,26 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 
 export default function Render() {
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const cards = getSortedCards(input, false);
     setCards(cards);
-    return calculateTotalBid(cards).toString();
+    return calculateTotalBid(cards);
   }
 
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     const cards = getSortedCards(input, true);
     setCards(cards);
-    return calculateTotalBid(cards).toString();
+    return calculateTotalBid(cards);
   }
 
-  const solverProps = new SolverProps(part1, part2, "Test07.txt");
   const [shownCards, setCards] = useState<CamelCard[]>([]);
   
   return (
     <PageLayout pageTitle={"Day 07: Camel Cards"} >
-      <Solver solverProps={solverProps} />
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile='Test07.txt'>
         <div>
           <div><b>&nbsp;Rank</b> | <b>Hand&nbsp;</b> | <b>Bid</b> | <b>Level</b> </div>
           <div>{String("").padStart(40, '-')}</div>
@@ -42,7 +39,7 @@ export default function Render() {
             ))
           }
         </div>
-      </WorkingBox>      
+      </Solver>      
     </PageLayout>
   );
 }

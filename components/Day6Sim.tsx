@@ -10,7 +10,7 @@ export default function Day6Sim() {
           <button className={styles.button} onClick={createSim}>Run</button>
           <div>&nbsp;&nbsp;&nbsp;Max Time =&nbsp;</div>
           <input id="timeInput" className={styles.inputField} defaultValue={8} type="number" />
-          <div>&nbsp;&nbsp;Distance =&nbsp;</div>
+          <div>Distance =&nbsp;</div>
           <input id="distanceInput" className={styles.inputField} defaultValue={11} type="number" />
         </span>
         <div className={styles.sim}><div className={styles.horizontal}><canvas className={styles.simCanvas} id="simCanvas"></canvas></div></div>            

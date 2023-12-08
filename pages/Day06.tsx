@@ -1,35 +1,32 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 import Day6Sim from '../components/Day6Sim';
 
 export default function Render() {
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const races = parseRaces(input);
     setRaces(races);
     let product = 1;
     for (const race of races) {
       product *= race.winRange;
     }
-    return product.toString();
+    return product;
   }
 
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     const race = parseMegaRace(input);
     setRaces([race]);
-    return race.winRange.toString();
+    return race.winRange;
   }
 
-  const solverProps = new SolverProps(part1, part2, "Test06.txt");
   const [shownRaces, setRaces] = useState<Race[]>([]);
   
   return (
     <PageLayout pageTitle={"Day 06: Wait For It"} >
       <Day6Sim/>
-      <Solver solverProps={solverProps} />
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile='Test06.txt' >
       <div>
         &nbsp;
         <b>{String("#").padEnd(4, '\u00A0')}</b> 
@@ -62,7 +59,7 @@ export default function Render() {
             </div>
           ))
         }
-      </WorkingBox>      
+      </Solver>      
     </PageLayout>
   );
 }

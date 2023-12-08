@@ -1,27 +1,25 @@
 import { ChangeEvent, useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 import styles from '../components/Solver.module.css';
 
 export default function Render() {
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const games = input.map(l => new Game(l));
     setPart1(true);
     setGames(games);
     games.forEach(g => g.setValid(maxRed, maxGreen, maxBlue));
-    return games.filter(g => g.isValid).map(g => g.gameNumber).reduce((acc, v) => acc + v).toString();
+    return games.filter(g => g.isValid).map(g => g.gameNumber).reduce((acc, v) => acc + v);
   }
 
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     const games = input.map(l => new Game(l));
     setPart1(false);
     setGames(games);  
-    return games.map(g => g.minR * g.minG * g.minB).reduce((acc, v) => acc + v).toString();
+    return games.map(g => g.minR * g.minG * g.minB).reduce((acc, v) => acc + v);
   }
 
-  const solverProps = new SolverProps(part1, part2, "Test02.txt");
   const [isPart1, setPart1] = useState<boolean>(true);
   const [shownGames, setGames] = useState<Game[]>([]);
   const [maxRed, setMaxRed] = useState<number>(12);
@@ -47,8 +45,7 @@ export default function Render() {
           </span>          
         </div>
       </div>
-      <Solver solverProps={solverProps} />
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile='Test02.txt'>
         <div>
           &nbsp;
           <b>{String("#").padEnd(3, '\u00A0')}</b>
@@ -69,7 +66,7 @@ export default function Render() {
         </div>
         <div>{String("").padStart(getLineLength(), '-')}</div>
       { shownGames && shownGames.map((game, index) => (
-        <div>
+        <div key={index}>
           &nbsp;
           {String(game.gameNumber).padEnd(3, '\u00A0')}
           &nbsp;|&nbsp;
@@ -95,7 +92,7 @@ export default function Render() {
           {game.str}
         </div>
       ))}
-      </WorkingBox>
+      </Solver>
     </PageLayout>
   );
 }

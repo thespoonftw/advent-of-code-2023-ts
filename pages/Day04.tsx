@@ -1,33 +1,29 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { SolverProps } from '../components/Solver';
-import WorkingBox from '../components/WorkingBox';
+import Solver from '../components/Solver';
 
 export default function Render() {
 
-  const part1 = (input: string[]): string => {
+  const part1 = (input: string[]): number => {
     const cards = input.map(l => new Scratchcard(l));
     setScratchCards(cards);
-    console.log(cards);
     const totalScore = cards.reduce((acc, card) => acc + card.score, 0);
-    return totalScore.toString();
+    return totalScore;
   }
 
-  const part2 = (input: string[]): string => {
+  const part2 = (input: string[]): number => {
     let cards = input.map(l => new Scratchcard(l));
     setScratchCards(cards);
-    return countWinMoreScratchCards(cards).toString();
+    return countWinMoreScratchCards(cards);
   }
 
-  const solverProps = new SolverProps(part1, part2, "Test04.txt");
   const [scratchCards, setScratchCards] = useState<Scratchcard[]>([]);
   const getScratchedLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].scratchNumbersStr.length : 10; }
   const getWinningLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].winningNumbersStr.length : 10; }
   
   return (
     <PageLayout pageTitle={"Day 04: Scratchcards"} >
-      <Solver solverProps={solverProps} />
-      <WorkingBox>
+      <Solver part1={part1} part2={part2} testFile='Test04.txt' >
         { scratchCards && <>
         <div>
           &nbsp;
@@ -60,7 +56,7 @@ export default function Render() {
           ))
         }
         </>}
-      </WorkingBox>
+      </Solver>
     </PageLayout>
   );
 }
@@ -74,7 +70,7 @@ const HighlightRow: React.FC<HighlightProps> = ({ offset, indexes }) => {
   return (
     <>
       { indexes.map((value, index) => ( 
-        <div style={{position: 'absolute'}}>
+        <div key={index} style={{position: 'absolute'}}>
           {String("").padEnd(offset, '\u00A0')}
           {String("").padEnd(value * 3, '\u00A0')}
           <span style={{backgroundColor: "rgba(0, 255, 0, 0.25)"}}>&nbsp;&nbsp;</span>
