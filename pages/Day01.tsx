@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() { 
 
@@ -23,19 +24,20 @@ export default function Render() {
       
       <Solver part1={part1} part2={part2} testFile="Test01.txt" >
         { values && <div>
-          <div><b>&nbsp;Row</b> | <b>#&nbsp;</b> | <b>String</b> </div>
-          <div>{String("").padStart(72, '-')}</div>
+          <AHeader text="Row" length={5}/>|
+          <AHeader text="#" length={4}/>|
+          <AHeader text="String"/>
+          <ADashedLine length={72} />
           { values.map((value, index) => (
             <div key={index} style={{position: "relative"}}>
               <HighlightRow index={value.leftValue.index} length={value.leftValue.length} color='rgba(255, 0, 0, 0.25)' />
               <HighlightRow index={value.rightValue.index} length={value.rightValue.length} color='rgba(0, 0, 255, 0.25)' />
-              &nbsp;
-              {String(index).padEnd(3, '\u00A0')}
-              &nbsp;|&nbsp;
+              <ACell text={index} length={5} />
+              |&nbsp;
               <span style={{backgroundColor: "rgba(255, 0, 0, 0.25)"}}>{value.leftValue.digit}</span>
               <span style={{backgroundColor: "rgba(0, 0, 255, 0.25)"}}>{value.rightValue.digit}</span>
-              &nbsp;|&nbsp;
-              {value.inputString}
+              &nbsp;|
+              <ACell text={value.inputString} />
             </div>
           ))}
         </div>}

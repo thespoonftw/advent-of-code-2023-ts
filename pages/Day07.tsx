@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
 
@@ -23,19 +24,17 @@ export default function Render() {
       <Solver part1={part1} part2={part2} testFile='Test07.txt'>
         { shownCards && <>
           <div>
-          <div><b>&nbsp;Rank</b> | <b>Hand&nbsp;</b> | <b>Bid</b> | <b>Level</b> </div>
-          <div>{String("").padStart(40, '-')}</div>
-          {shownCards && shownCards.map((value, index) => (
+            <AHeader text="Rank" length={6} />|
+            <AHeader text="Hand" length={7} />|
+            <AHeader text="Bid" length={5} />|
+            <AHeader text="Level" />
+            <ADashedLine length={40} />
+            {shownCards && shownCards.map((value, index) => (
               <div key={index}>
-                <span>
-                  &nbsp;
-                  {String(shownCards.length - index).padEnd(4, '\u00A0')}</span>
-                  &nbsp;|&nbsp;
-                  {value.str}
-                  &nbsp;|&nbsp;
-                  {String(value.bid).padEnd(3, '\u00A0')}
-                  &nbsp;|&nbsp;
-                  {value.level}
+                <ACell text={shownCards.length - index} length={6}/>|
+                <ACell text={value.str} length={7}/>|
+                <ACell text={value.bid} length={5}/>|
+                <ACell text={value.level} />
               </div>
             ))}
           </div>

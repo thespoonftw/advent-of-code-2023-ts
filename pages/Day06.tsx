@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
 import Day6Sim from '../components/Day6Sim';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
 
@@ -28,38 +29,23 @@ export default function Render() {
       <Day6Sim/>
       <Solver part1={part1} part2={part2} testFile='Test06.txt' >
         { races && <>
-          <div>
-          &nbsp;
-          <b>{String("#").padEnd(4, '\u00A0')}</b> 
-          &nbsp;|&nbsp;
-          <b>{String("Time").padEnd(10, '\u00A0')}</b>
-          &nbsp;|&nbsp;
-          <b>{String("Dist").padEnd(10, '\u00A0')}</b>
-          &nbsp;|&nbsp;
-          <b>{String("Min").padEnd(10, '\u00A0')}</b>
-          &nbsp;|&nbsp;
-          <b>{String("Max").padEnd(10, '\u00A0')}</b>
-          &nbsp;|&nbsp;
-          <b>{String("Range").padEnd(10, '\u00A0')}</b>
-        </div>
-        <div>{String("").padStart(72, '-')}</div>
-        {races && races.map((value, index) => (
-              <div key={index}>
-                &nbsp;
-                {String(index).padEnd(4, '\u00A0')}
-                &nbsp;|&nbsp; 
-                {String(value.time).padEnd(10, '\u00A0')}
-                &nbsp;|&nbsp; 
-                {String(value.distance).padEnd(10, '\u00A0')}
-                &nbsp;|&nbsp;
-                {String(value.lower).padEnd(10, '\u00A0')}
-                &nbsp;|&nbsp;
-                {String(value.upper).padEnd(10, '\u00A0')}
-                &nbsp;|&nbsp;
-                {value.winRange}
-              </div>
-            ))
-          }
+          <AHeader text="#" length={6}/>|
+          <AHeader text="Time" length={12}/>|
+          <AHeader text="Dist" length={12}/>|
+          <AHeader text="Min" length={12}/>|
+          <AHeader text="Max" length={12}/>|
+          <AHeader text="Range" length={12}/>
+          <ADashedLine length={72} />
+          {races && races.map((value, index) => (
+            <div key={index}>
+              <ACell text={index} length={6}/>|
+              <ACell text={value.time} length={12}/>|
+              <ACell text={value.distance} length={12}/>|
+              <ACell text={value.lower} length={12}/>|
+              <ACell text={value.upper} length={12}/>|
+              <ACell text={value.winRange}/>
+            </div>
+          ))}
         </>}
       </Solver>      
     </PageLayout>

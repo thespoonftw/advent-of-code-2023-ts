@@ -2,6 +2,7 @@ import { ChangeEvent, useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
 import styles from '../components/Solver.module.css';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
 
@@ -48,53 +49,43 @@ export default function Render() {
       <Solver part1={part1} part2={part2} testFile='Test02.txt'>
         { part && <>
         <div>
-          &nbsp;
-          <b>{String("#").padEnd(3, '\u00A0')}</b>
-          &nbsp;|&nbsp;
+          <AHeader text="#" length={5}/>|
           { part === 1 &&
-            <b>Valid&nbsp;</b>
+            <><AHeader text="Valid" length={8}/>|</>
           }
           {
             part === 2 &&
             <>
-              <b>{String("R").padEnd(3, '\u00A0')}</b>
-              &nbsp;|&nbsp;
-              <b>{String("G").padEnd(3, '\u00A0')}</b>
-              &nbsp;|&nbsp;
-              <b>{String("B").padEnd(3, '\u00A0')}</b>
+              <AHeader text="R" length={5}/>|
+              <AHeader text="G" length={5}/>|
+              <AHeader text="B" length={5}/>|
             </>
           }
-          &nbsp;|&nbsp;
-          <b>Contents</b> 
+          <AHeader text="Contents"/>
         </div>
-        <div>{String("").padStart(getLineLength(), '-')}</div>
+        <ADashedLine length={getLineLength()} />
         { shownGames && shownGames.map((game, index) => (
           <div key={index}>
-            &nbsp;
-            {String(game.gameNumber).padEnd(3, '\u00A0')}
-            &nbsp;|&nbsp;
+            <ACell text={game.gameNumber} length={5}/>|
             {
               part === 1 &&
               <>{
                 game.isValid 
                 ?
-                <span style={{color: "green"}}>True&nbsp;&nbsp;</span>
+                <span style={{color: "green"}}><ACell text="True" length={8} /></span>
                 :
-                <span style={{color: "red"}}>False&nbsp;</span>             
-              }</>
+                <span style={{color: "red"}}><ACell text="False" length={8} /></span>            
+              }|</>
             }
             {
               part === 2 &&
               <>
-                {String(game.minR).padEnd(3, '\u00A0')}
-                &nbsp;|&nbsp;
-                {String(game.minG).padEnd(3, '\u00A0')}
-                &nbsp;|&nbsp;
-                {String(game.minB).padEnd(3, '\u00A0')}
+                <ACell text={game.minR} length={5}/>|
+                <ACell text={game.minG} length={5}/>|
+                <ACell text={game.minB} length={5}/>|
               </>
             }
-            &nbsp;|&nbsp;
-            {game.str}
+            <ACell text={game.str}/>
           </div>
         ))}
       </>}

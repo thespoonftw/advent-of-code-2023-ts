@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
 
@@ -18,43 +19,30 @@ export default function Render() {
   }
 
   const [scratchCards, setScratchCards] = useState<Scratchcard[] | null>(null);
-  const getScratchedLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].scratchNumbersStr.length : 10; }
-  const getWinningLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].winningNumbersStr.length : 10; }
+  const getScratchedLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].scratchNumbersStr.length + 2 : 10; }
+  const getWinningLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].winningNumbersStr.length + 2 : 10; }
   
   return (
     <PageLayout pageTitle={"Day 04: Scratchcards"} >
       <Solver part1={part1} part2={part2} testFile='Test04.txt' >
         { scratchCards && <>
-        <div>
-          &nbsp;
-          <b>#</b>
-          &nbsp;&nbsp;&nbsp;|&nbsp; 
-          <b>Wins</b>
-          &nbsp;|&nbsp;
-          <b>Score</b>
-          &nbsp;|&nbsp;
-          <b>{String("Scratched").padEnd(getScratchedLength(), '\u00A0')}</b>
-          &nbsp;|&nbsp;
-          <b>{String("Winning").padEnd(getWinningLength(), '\u00A0')}</b> 
-        </div>
-        <div>{String("").padStart(26 + getScratchedLength() + getWinningLength(), '-')}</div>
+        <AHeader text="#" length={5}/>|
+        <AHeader text="Wins" length={7}/>|
+        <AHeader text="Score" length={7}/>|
+        <AHeader text="Scratched" length={getScratchedLength()}/>|
+        <AHeader text="Winning"/>
+        <ADashedLine length={24 + getScratchedLength() + getWinningLength()} />
         {scratchCards.map((value, index) => (
-            <div key={index} style={{position: "relative"}}>
-              <HighlightRow offset={22} indexes={value.scratchIndexes} />
-              <HighlightRow offset={25 + getScratchedLength()} indexes={value.winningIndexes} />
-              &nbsp;
-              {String(value.id).padEnd(3, '\u00A0')}
-              &nbsp;|&nbsp;
-              {String(value.matches).padEnd(4, '\u00A0')}
-              &nbsp;|&nbsp;
-              {String(value.score).padEnd(5, '\u00A0')}
-              &nbsp;|&nbsp;
-              {value.scratchNumbersStr}
-              &nbsp;|&nbsp;
-              {value.winningNumbersStr}
-            </div>
-          ))
-        }
+          <div key={index} style={{position: "relative"}}>
+            <HighlightRow offset={23} indexes={value.scratchIndexes} />
+            <HighlightRow offset={24 + getScratchedLength()} indexes={value.winningIndexes} />
+            <ACell text={value.id} length={5}/>|
+            <ACell text={value.matches} length={7}/>|
+            <ACell text={value.score} length={7}/>|
+            <ACell text={value.scratchNumbersStr} />|
+            <ACell text={value.winningNumbersStr} />
+          </div>
+        ))}
         </>}
       </Solver>
     </PageLayout>

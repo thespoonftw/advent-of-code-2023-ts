@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
 
@@ -42,25 +43,17 @@ export default function Render() {
         }
         { part === 2 && 
           <div>
-            &nbsp;
-            <b>Start</b>
-            &nbsp;|&nbsp;
-            <b>End&nbsp;&nbsp;</b>
-            &nbsp;|&nbsp;
-            <b>Steps</b>
-            <div>{String("").padStart(24, '-')}</div>
-            {
-              ghosts && ghosts.map((ghost, index) => (
-                <div key={index}>
-                  &nbsp;
-                  {ghost.startNode}
-                  &nbsp;&nbsp;&nbsp;|&nbsp;
-                  {ghost.currentNode}
-                  &nbsp;&nbsp;&nbsp;|&nbsp;
-                  {ghost.zVisit}
-                </div>
-              ))
-            }
+            <AHeader text="Start" length={7} />|
+            <AHeader text="End" length={7} />|
+            <AHeader text="Steps" />
+            <ADashedLine length={24} />
+            { ghosts && ghosts.map((ghost, index) => (
+              <div key={index}>
+                <ACell text={ghost.startNode} length={7}/>|
+                <ACell text={ghost.currentNode} length={7}/>|
+                <ACell text={ghost.zVisit} />
+              </div>
+            ))}
           </div>
         }
       </Solver>   

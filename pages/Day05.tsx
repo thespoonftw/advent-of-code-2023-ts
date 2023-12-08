@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
+import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
 
@@ -23,7 +24,7 @@ export default function Render() {
   }
 
   const [seeds, setSeeds] = useState<SeedHistory[] | null>(null);
-  const columnWidth = () : number => { return seeds ? Math.max(6, Math.max(...seeds.map(s => s.values[0])).toString().length) : 0; }
+  const columnWidth = () : number => { return seeds ? Math.max(8, Math.max(...seeds.map(s => s.values[0])).toString().length + 2) : 0; }
   const columnNames = [ "Seed", "Soil", "Fert.", "Water", "Light", "Temp.", "Humid.", "Loc." ];
 
   return (
@@ -31,25 +32,23 @@ export default function Render() {
       <Solver part1={part1} part2={part2} testFile='Test05.txt' >
         { seeds && <>
           <div>
-            &nbsp;
             { columnNames.map((title, index) => (
               <span key={index}>
-                <b>{String(title).padEnd(columnWidth(), '\u00A0')}</b>
-                {index < columnNames.length - 1 && <>&nbsp;|&nbsp;</>}
+                <AHeader text={title} length={columnWidth()}/>
+                {index < columnNames.length - 1 && <>|</>}
               </span>
             ))}
           </div>
-          <div>{String("").padStart((columnWidth() + 3) * 8, '-')}</div>
+          <div>{String("").padStart((columnWidth() + 1) * 8, '-')}</div>
           <div>
             {
               seeds.map((seed, index) => (
                 <div key={index}>
-                  &nbsp;
                   {
                     seed.values.map((value, index2) => (
                       <span key={index2}>
-                        {String(value).padEnd(columnWidth(), '\u00A0')}
-                        {index2 < seed.values.length - 1 && <>&nbsp;|&nbsp;</>}
+                        <ACell text={value} length={columnWidth()}/>
+                        {index2 < seed.values.length - 1 && <>|</>}
                       </span>                    
                     ))
                   }
