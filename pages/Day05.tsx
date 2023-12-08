@@ -6,24 +6,23 @@ import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 export default function Render() {
 
   const part1 = (input: string[]): number => {
-    const seedIds = getSeeds(input[0]);
-    return findLowestLocation(input, seedIds);
+    const seedIds = input[0].split(" ").slice(1).map(s => parseInt(s));;
+    const almanac = new Almanac(input);
+    const seeds = seedIds.map(id => almanac.getSeed(id));
+    setSeeds(seeds);
+    return Math.min(...seeds.map(s => s.values[7]));
   }
 
   const part2 = (input: string[]): number => {
     const seedRanges = getSeedRanges(input[0]);
-    return findLowestLocation(input, seedRanges);
-  }
-
-  const findLowestLocation = (input: string[], inputSeeds: Range[]): number => {
     const almanac = new Almanac(input);
-    const locations = almanac.processSeedData(inputSeeds);
-    const histories = locations.map(l => almanac.findSeedHistory(l));
-    setSeeds(histories);
-    return Math.min(...locations.map(l => l.min));
+    const seedId = findMinimumSeed(seedRanges, almanac);
+    const seed = almanac.getSeed(seedId);
+    setSeeds([seed]);
+    return seed.values[7];
   }
 
-  const [seeds, setSeeds] = useState<SeedHistory[] | null>(null);
+  const [seeds, setSeeds] = useState<Seed[] | null>(null);
   const columnWidth = () : number => { return seeds ? Math.max(8, Math.max(...seeds.map(s => s.values[0])).toString().length + 2) : 0; }
   const columnNames = [ "Seed", "Soil", "Fert.", "Water", "Light", "Temp.", "Humid.", "Loc." ];
 
@@ -62,10 +61,6 @@ export default function Render() {
   );
 }
 
-function getSeeds(input: string) : Range[] {
-  return input.split(" ").slice(1).map(s => parseInt(s)).map(i => new Range(i, i+1));
-}
-
 function getSeedRanges(input: string) : Range[] {
   const seeds = input.split(" ").slice(1).map(s => parseInt(s));
   const seedRanges:Range[] = [];
@@ -74,6 +69,24 @@ function getSeedRanges(input: string) : Range[] {
   }
   seedRanges.sort((a, b) => a.min - b.min);
   return seedRanges;
+}
+
+function findMinimumSeed(seedRanges: Range[], almanac: Almanac) : number {
+
+  const timeout = 100_000_000;
+  let i = 0; 
+
+  while (i < timeout) {
+    i++;
+    const seedId = almanac.getSeedIdFromLocation(i);
+    for (const range of seedRanges) {
+      if (seedId >= range.min && seedId < range.max) {
+        return seedId;
+      }
+    }
+  }
+
+  return 0;
 }
 
 class Almanac {
@@ -93,27 +106,22 @@ class Almanac {
     }
   }
 
-  processSeedData(seedRanges: Range[]) : Range[] {
-    let mapped = seedRanges;    
+  getSeed(seedId: number) : Seed {
+    let currentValue = seedId  
+    const arr = [currentValue];
     for (const mapper of this.mappers) {
-      mapped = mapper.mapRanges(mapped);
-    }
-    return mapped;
-  }
-
-  findSeedHistory(location: Range): SeedHistory {
-
-    let currentValue = location.min;
-    const arr = [];
-    arr.push(currentValue);
-
-    for (let i=this.mappers.length-1; i >=0; i--) {
-      const mapper = this.mappers[i];
-      currentValue = mapper.reverseMap(currentValue);
+      currentValue = mapper.map(currentValue);
       arr.push(currentValue);
     }
+    return new Seed(arr);
+  }
 
-    return new SeedHistory(arr.reverse());
+  getSeedIdFromLocation(locationId: number) : number {
+    let currentValue = locationId;
+    for (let i = this.mappers.length - 1; i >= 0; i--) {
+      currentValue = this.mappers[i].reverseMap(currentValue);
+    }
+    return currentValue;
   }
 }
 
@@ -125,74 +133,23 @@ class Mapper {
     this.filters.sort((a, b) => a.min - b.min);
   }
 
-  reverseMap(value: number) : number {
+  map(value: number) : number {
     for (const filter of this.filters) {
-      if (value >= filter.min + filter.translator && value <= filter.max + filter.translator) {
-        return value - filter.translator;
+      if (value >= filter.min && value < filter.max) {
+        return value + filter.translator;
       }
     }
     return value;
   }
 
-  mapRanges(ranges: Range[]) : Range[] {
-
-    let i = 0;
-    let j = 0;
-    let current = ranges[0];
-    let returner:Range[] = [];
-
-    while (i < ranges.length) {
-
-      // no more filters left
-      if (j >= this.filters.length) {
-        returner.push(new Range(current.min, current.max));
-        i++;
-        current = ranges[i];
-        continue;
-      }
-
-      let filter = this.filters[j];
-      let t = filter.translator;
-
-      // filter is behind current, switch to next filter
-      if (filter.max <= current.min) {
-        j++;
-      }
-      // current is behind filter, save and move to next
-      else if (filter.min >= current.max) {
-        returner.push(new Range(current.min, current.max));
-        i++;
-        current = ranges[i];
-      }
-      // current is contained wholly by filter, save and move to next
-      else if (filter.min <= current.min && filter.max >= current.max) {
-        returner.push(new Range(current.min + t, current.max + t))
-        i++;
-        current = ranges[i];
-      }
-      // filter is contained wholly by current, save in parts
-      else if (current.min < filter.min && current.max > filter.max) {
-        returner.push(new Range(current.min, filter.min));
-        returner.push(new Range(filter.min + t, filter.max + t));
-        current = new Range(filter.max, current.max);
-      }
-      // lower edge of current is in filter
-      else if (filter.min <= current.min && filter.max < current.max) {
-        returner.push(new Range(current.min + t, filter.max + t));
-        current = new Range(filter.max, current.max);
-      }
-      // right edge of current is in filter
-      else if (filter.min > current.min && filter.max >= current.max) {
-        returner.push(new Range(current.min, filter.min));
-        returner.push(new Range(filter.min + t, current.max + t));
-        i++;
-        current = ranges[i];
+  reverseMap(value: number) : number {
+    for (const filter of this.filters) {
+      if (value >= filter.min + filter.translator && value < filter.max + filter.translator) {
+        return value - filter.translator;
       }
     }
-
-    returner.sort((a, b) => a.min - b.min);
-    return returner;    
-  }  
+    return value;
+  }
 }
 
 class Filter {
@@ -222,7 +179,7 @@ class Range {
   }
 }
 
-class SeedHistory {
+class Seed {
   values: number[];
 
   constructor(values: number[]) {

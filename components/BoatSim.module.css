@@ -1,0 +1,18 @@
+
+.sim {
+  background-color: #666666;
+  flex-grow: 1;
+  resize: vertical;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.horizontal {
+  overflow-x: auto; 
+  white-space: nowrap;
+}
+
+.simCanvas {
+  width: 100%;
+  image-rendering: pixelated;
+}

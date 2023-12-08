@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
-import Day6Sim from '../components/Day6Sim';
+import BoatSim from '../components/BoatSim';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {
@@ -26,7 +26,7 @@ export default function Render() {
   
   return (
     <PageLayout pageTitle={"Day 06: Wait For It"} >
-      <Day6Sim/>
+      <BoatSim/>
       <Solver part1={part1} part2={part2} testFile='Test06.txt' >
         { races && <>
           <AHeader text="#" length={6}/>|
