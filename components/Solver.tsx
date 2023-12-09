@@ -1,17 +1,13 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect } from "react";
 import styles from './Solver.module.css';
 
 export interface SolverProps {
-
   part1: (lines: string[]) => number;
   part2: (lines: string[]) => number;
   testFile?: string;
-  children: ReactNode;
-
 }
   
-
-export default function Solver({ children, part1, part2, testFile }: SolverProps) {
+export default function Solver({ part1, part2, testFile }: SolverProps) {
 
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState('-');
@@ -84,14 +80,6 @@ export default function Solver({ children, part1, part2, testFile }: SolverProps
         }        
       </div>
 
-      <div className={styles.row}>
-        <div className={styles.label}>Working:</div>
-        <div className={styles.working}>
-          {children}
-        </div>
-      </div>
-
-        
     </div>
   );
 }

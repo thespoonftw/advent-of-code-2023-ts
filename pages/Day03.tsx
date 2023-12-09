@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
+import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
@@ -23,7 +24,8 @@ export default function Render() {
   
   return (
     <PageLayout pageTitle={"Day 03: Gear Ratios"} >
-      <Solver part1={part1} part2={part2} testFile='Test03.txt' >
+      <Solver part1={part1} part2={part2} testFile='Test03.txt' />
+      <WorkingBox>
         { grid && 
           <div style={{fontSize: getFontSize()}}>{
             Array.from({ length: grid.width }).map((_, y) => (
@@ -40,7 +42,7 @@ export default function Render() {
             ))
           }</div>
         }
-      </Solver>
+      </WorkingBox>
     </PageLayout>
   );
 }

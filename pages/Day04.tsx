@@ -2,71 +2,63 @@ import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
+import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
   const part1 = (input: string[]): number => {
     const cards = input.map(l => new Scratchcard(l));
     setScratchCards(cards);
-    const totalScore = cards.reduce((acc, card) => acc + card.score, 0);
-    return totalScore;
+    setIsPart1(true);
+    return cards.reduce((acc, card) => acc + card.score, 0);
   }
 
   const part2 = (input: string[]): number => {
     let cards = input.map(l => new Scratchcard(l));
+    setCounts(cards);
     setScratchCards(cards);
-    return countWinMoreScratchCards(cards);
+    setIsPart1(false);
+    return cards.reduce((acc, card) => acc + card.count, 0);
   }
 
   const [scratchCards, setScratchCards] = useState<Scratchcard[] | null>(null);
+  const [isPart1, setIsPart1] = useState<boolean>(true);
   const getScratchedLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].scratchNumbersStr.length + 2 : 10; }
   const getWinningLength = () : number => { return scratchCards && scratchCards.length > 0 ? scratchCards[0].winningNumbersStr.length + 2 : 10; }
   
   return (
     <PageLayout pageTitle={"Day 04: Scratchcards"} >
-      <Solver part1={part1} part2={part2} testFile='Test04.txt' >
+      <Solver part1={part1} part2={part2} testFile='Test04.txt' />
+      <WorkingBox>
         { scratchCards && <>
         <AHeader text="#" length={5}/>|
         <AHeader text="Wins" length={7}/>|
-        <AHeader text="Score" length={7}/>|
+        { isPart1 ? <AHeader text="Score" length={10}/> : <AHeader text="Count" length={10}/>}|
         <AHeader text="Scratched" length={getScratchedLength()}/>|
         <AHeader text="Winning"/>
         <ADashedLine length={24 + getScratchedLength() + getWinningLength()} />
-        {scratchCards.map((value, index) => (
+        { scratchCards.map((value, index) => (
           <div key={index} style={{position: "relative"}}>
-            <HighlightRow offset={23} indexes={value.scratchIndexes} />
-            <HighlightRow offset={24 + getScratchedLength()} indexes={value.winningIndexes} />
             <ACell text={value.id} length={5}/>|
             <ACell text={value.matches} length={7}/>|
-            <ACell text={value.score} length={7}/>|
-            <ACell text={value.scratchNumbersStr} />|
-            <ACell text={value.winningNumbersStr} />
+            { isPart1 ? <ACell text={value.score} length={10}/> : <ACell text={value.count} length={10}/>}|
+            <span>
+              { value.scratchValues.map((value2, index) => (<>{
+                <>&nbsp;<span style={{backgroundColor: value.scratchIndexes.includes(index) ? "#9f9" : "#fff"}}>{String(value2).padStart(2, '\u00A0')}</span></>
+              }</>))}
+            </span>&nbsp;|
+            <span>
+              { value.winningValues.map((value2, index) => (
+                <>&nbsp;<span style={{backgroundColor: value.winningIndexes.includes(index) ? "#9f9" : "#fff"}}>{String(value2).padStart(2, '\u00A0')}</span></>
+              ))}
+            </span>&nbsp;
           </div>
         ))}
         </>}
-      </Solver>
+      </WorkingBox>
     </PageLayout>
   );
 }
-
-interface HighlightProps {
-  offset: number;
-  indexes: number[];
-}
-
-const HighlightRow: React.FC<HighlightProps> = ({ offset, indexes }) => {
-  return (
-    <>
-      { indexes.map((value, index) => ( 
-        <div key={index} style={{position: 'absolute'}}>
-          {String("").padEnd(offset, '\u00A0')}
-          {String("").padEnd(value * 3, '\u00A0')}
-          <span style={{backgroundColor: "rgba(0, 255, 0, 0.25)"}}>&nbsp;&nbsp;</span>
-        </div>
-      ))}
-    </>
-  );
-};
 
 class Scratchcard {
 
@@ -75,6 +67,7 @@ class Scratchcard {
   scratchValues: number[];
   matches: number = 0;
   score: number;
+  count: number = 1;
   scratchNumbersStr: string;
   winningNumbersStr: string;
   scratchIndexes: number[] = [];
@@ -105,30 +98,16 @@ class Scratchcard {
   }
 }
 
-function countWinMoreScratchCards(cards: Scratchcard[]) : number {
+function setCounts(cards: Scratchcard[]) {
 
-  const l = cards.length;
-  const ticketCounts = [];
-  const maxMatches = 5;
+  for (let i = 0; i < cards.length; i++) {
 
-  for (let i = 1; i <= l + maxMatches; i++) {
-    ticketCounts[i] = 1;
-  }
+    const matches = cards[i].matches;
+    const ticketCount = cards[i].count;
+    const max = Math.min(i + matches, cards.length);
 
-  let i = 0;
-  for (let i = 1; i <= l; i++) {
-
-    const matches = cards[i-1].matches;
-    const ticketCount = ticketCounts[i];
-
-    for (let j = i + 1; j <= i + matches; j++) {
-      ticketCounts[j] += ticketCount;
+    for (let j = i + 1; j <= max; j++) {
+      cards[j].count += ticketCount;
     }
   }
-
-  let sum = 0;
-  for (let i = 1; i <= l; i++) {
-    sum += ticketCounts[i];
-  }
-  return sum;
 }

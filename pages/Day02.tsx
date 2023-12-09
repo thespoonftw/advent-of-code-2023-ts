@@ -3,6 +3,7 @@ import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
 import styles from '../components/Solver.module.css';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
+import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
@@ -46,7 +47,8 @@ export default function Render() {
           </span>          
         </div>
       </div>
-      <Solver part1={part1} part2={part2} testFile='Test02.txt'>
+      <Solver part1={part1} part2={part2} testFile='Test02.txt' />
+      <WorkingBox>
         { part && <>
         <div>
           <AHeader text="#" length={5}/>|
@@ -89,7 +91,7 @@ export default function Render() {
           </div>
         ))}
       </>}
-      </Solver>
+      </WorkingBox>
     </PageLayout>
   );
 }
