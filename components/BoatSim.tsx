@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from './Solver.module.css';
-import simStyles from './BoatSim.module.css';
 
 export default function BoatSim() {
   return (
@@ -14,9 +13,9 @@ export default function BoatSim() {
           <div>Distance =&nbsp;</div>
           <input id="distanceInput" className={styles.inputField} defaultValue={11} type="number" />
         </span>
-        <div className={simStyles.sim}>
-          <div className={simStyles.horizontal}>
-            <canvas className={simStyles.simCanvas} id="simCanvas"></canvas>
+        <div className={styles.sim}>
+          <div className={styles.horizontal}>
+            <canvas className={styles.simCanvas} id="simCanvas"></canvas>
           </div>
         </div>            
       </div>
