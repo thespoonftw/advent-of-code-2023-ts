@@ -24,7 +24,6 @@ export default function Render() {
 
   const [maze, SetMaze] = useState<PipeMaze | null>(null);
   const [isPart1, SetIsPart1] = useState<boolean>(true);
-  const getFontSize = () : number => { return maze && maze.width > 20 ? 8 : 14; }
   
   return (
     <PageLayout pageTitle={"Day 10: Pipe Maze Conundrum"} >
@@ -34,36 +33,7 @@ export default function Render() {
       }
     </PageLayout>
   );
-
-  function RenderTile(x: number, y: number) {
-    const tile = maze!.tryGetTile(x, y)!;
-
-    const tStyle = isPart1 ?
-      tile.isPipe 
-        ? 
-        { color: "red", fontWeight: "bold" } 
-        : 
-        { color: "#ccc", fontWeight: "normal" }
-      :
-      tile.isInside === true && !tile.isPipe
-        ? { color: "red", fontWeight: "bold" } 
-        : 
-        tile.isInside === false && !tile.isPipe
-        ?
-        { color: "#ccc", fontWeight: "normal" } 
-        :
-        { color: "black", fontWeight: "normal" }
-      ;
-
-    return (
-      <span key={x}>{
-        <span style={tStyle}>{tile.str}</span>
-      }</span>
-    );
-  }
 }
-
-
 
 const directions = { "N": 0, "E": 1, "S": 2, "W": 3 } as const; 
 type Direction = keyof typeof directions;
