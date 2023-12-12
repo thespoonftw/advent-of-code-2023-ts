@@ -1,44 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Solver.module.css';
+import { InputRow, NumberInput, Row } from './Solver';
 
 export default function BoatSim() {
+
+  const [maxTime, setMaxTime] = useState<number>(8);
+  const [distance, setDistance] = useState<number>(11);
+
   return (
-    <div className={styles.row}>
-      <div className={styles.label}>Sim:</div>
-      <div className={styles.flexGrow}>
-        <span className={styles.centeredRow}>
-          <button className={styles.button} onClick={createSim}>Run</button>
-          <div>&nbsp;&nbsp;&nbsp;Max Time =&nbsp;</div>
-          <input id="timeInput" className={styles.inputField} defaultValue={8} type="number" />
-          <div>Distance =&nbsp;</div>
-          <input id="distanceInput" className={styles.inputField} defaultValue={11} type="number" />
-        </span>
+    <>
+      <InputRow label="Sim">
+        <button className={styles.button} onClick={createSim}>Run</button>
+        <div>&nbsp;&nbsp;&nbsp;</div>
+        <NumberInput label="Max Time" set={setMaxTime} value={maxTime} />
+        <NumberInput label="Distance" set={setDistance} value={distance} />
+      </InputRow>
+      <Row label="">
         <div className={styles.sim}>
           <div className={styles.horizontal}>
             <canvas className={styles.simCanvas} id="simCanvas"></canvas>
           </div>
-        </div>            
-      </div>
-    </div>
+        </div>
+      </Row>
+      
+    </>
   );
+
+  async function createSim() {
+    if (simTimeout) {
+      clearTimeout(simTimeout);
+    }
+  
+    const sim = new Sim(maxTime, distance);
+    for (let i = 0; i < sim.maxTime; i++) {
+      await delay(1000);
+      sim.takeStep();
+    }
+  
+    simTimeout = null;
+  }
+  
 }
 
 const pixelSize = 4;
 let simTimeout : NodeJS.Timeout | null;
 
-async function createSim() {
-  if (simTimeout) {
-    clearTimeout(simTimeout);
-  }
-
-  const sim = new Sim();
-  for (let i = 0; i < sim.maxTime; i++) {
-    await delay(1000);
-    sim.takeStep();
-  }
-
-  simTimeout = null;
-}
 
 function delay(milliseconds: number){
   return new Promise(resolve => {
@@ -56,11 +62,11 @@ class Sim {
   boatPositions: number[];
   t : number = 0;
 
-  constructor() {
+  constructor(maxTime: number, distance: number) {
     const canvas = document.getElementById("simCanvas") as HTMLCanvasElement;
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    this.maxTime = parseInt((document.getElementById("timeInput") as HTMLInputElement).value);
-    this.distance = parseInt((document.getElementById("distanceInput") as HTMLInputElement).value);
+    this.maxTime = maxTime;
+    this.distance = distance;
   
     this.width = (this.distance + 3) * pixelSize;
     this.height = (this.maxTime + 1) * pixelSize;

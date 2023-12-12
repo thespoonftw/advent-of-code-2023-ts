@@ -9,15 +9,12 @@ export default function Render({ maze, isPart1 }: { maze: PipeMaze, isPart1: boo
   });
 
   return (
-    <div className={styles.row}>
-      <div className={styles.label}>Working:</div>
-      <div className={styles.flexGrow}>
-        <div className={styles.sim}>
-          <div className={styles.horizontal}>
-            <canvas className={styles.simCanvas} id="simCanvas"></canvas>
-          </div>
-        </div>            
-      </div>
+    <div className={styles.flexGrow}>
+      <div className={styles.sim}>
+        <div className={styles.horizontal}>
+          <canvas className={styles.simCanvas} id="simCanvas"></canvas>
+        </div>
+      </div>            
     </div>
   );
 

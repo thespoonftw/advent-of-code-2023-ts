@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
+import Solver, { WorkingBox } from '../components/Solver';
 import BoatSim from '../components/BoatSim';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
-import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
@@ -27,8 +26,7 @@ export default function Render() {
   
   return (
     <PageLayout pageTitle={"Day 06: Wait For It"} >
-      <BoatSim/>
-      <Solver part1={part1} part2={part2} testFile='Test06.txt' />
+      <Solver part1={part1} part2={part2} testFile="Test06.txt" />
       <WorkingBox>
         { races && <>
           <AHeader text="#" length={6}/>|
@@ -49,7 +47,8 @@ export default function Render() {
             </div>
           ))}
         </>}
-      </WorkingBox>      
+      </WorkingBox>
+      <BoatSim/>    
     </PageLayout>
   );
 }

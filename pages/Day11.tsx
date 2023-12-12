@@ -1,30 +1,42 @@
-import { useState } from 'react';
+import { ChangeEvent, SetStateAction, useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
+import Solver, { InputRow, NumberInput } from '../components/Solver';
+import styles from '../components/Solver.module.css';
+import ExpansionSim from '../components/ExpansionSim';
 
 export default function Render() {
 
   const part1 = (input: string[]): number => {
     const galaxy = new Galaxy(input);
+    setLines(input);
     galaxy.expand(2);
     return galaxy.measureDistances();
   }
 
   const part2 = (input: string[]): number => {
     const galaxy = new Galaxy(input);
+    setLines(input);
     galaxy.expand(1_000_000);
     return galaxy.measureDistances();
   }
+
+  const [lines, setLines] = useState<string[] | null>(null);
+  const [expansionFactor, setExpansionFactor] = useState<number>(1_000_000);
   
   return (
-    <PageLayout pageTitle={"Day 11: Cosmic Expansion"} >
-      <Solver part1={part1} part2={part2} testFile='Test11.txt' />
+    <PageLayout pageTitle="Day 11: Cosmic Expansion" >
+      <InputRow label="Params:">
+        <NumberInput label="Part 2 Expansion Factor" set={setExpansionFactor} value={expansionFactor} width={100} />
+      </InputRow>
+      <Solver part1={part1} part2={part2} testFile="Test11.txt" />
+      <ExpansionSim lines={lines} />
+      
     </PageLayout>
   );
 
 }
 
-class Galaxy {
+export class Galaxy {
 
   width: number;
   height: number;

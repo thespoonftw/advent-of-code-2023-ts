@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
+import Solver, { WorkingBox } from '../components/Solver';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
-import WorkingBox from '../components/WorkingBox';
 
 export default function Render() {
 
@@ -29,7 +28,7 @@ export default function Render() {
 
   return (
     <PageLayout pageTitle={"Day 05: If You Give A Seed A Fertilizer"} >
-      <Solver part1={part1} part2={part2} testFile='Test05.txt' />
+      <Solver part1={part1} part2={part2} testFile="Test05.txt" />
       <WorkingBox>
         { seeds && <>
           <div>

@@ -45,7 +45,7 @@ export default function Render() {
   
   return (
     <PageLayout pageTitle={"Day 09: Mirage Maintenance"} >
-      <Solver part1={part1} part2={part2} testFile='Test09.txt' /> 
+      <Solver part1={part1} part2={part2} testFile="Test09.txt" /> 
       <div className={styles.row}>
         <div className={styles.label}>Working:</div>
         <div>

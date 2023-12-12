@@ -1,9 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
-import styles from '../components/Solver.module.css';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
-import WorkingBox from '../components/WorkingBox';
+import Solver, { InputRow, NumberInput, Row, WorkingBox } from '../components/Solver';
 
 export default function Render() {
 
@@ -27,27 +25,18 @@ export default function Render() {
   const [maxRed, setMaxRed] = useState<number>(12);
   const [maxGreen, setMaxGreen] = useState<number>(13);
   const [maxBlue, setMaxBlue] = useState<number>(14);
-  const handleRedChange = (event: ChangeEvent<HTMLInputElement>) => { setMaxRed(parseInt(event.target.value)); }
-  const handleGreenChange = (event: ChangeEvent<HTMLInputElement>) => { setMaxGreen(parseInt(event.target.value)); }
-  const handleBlueChange = (event: ChangeEvent<HTMLInputElement>) => { setMaxBlue(parseInt(event.target.value)); }
   const getLineLength = () : number => { return shownGames ? Math.max(...shownGames.map(g => g.str.length)) + (part === 1 ? 15 : 25) : 0; }
   
   return (
     <PageLayout pageTitle={"Day 02: Cube Conundrum"} >
-      <div className={styles.row}>
-        <div className={styles.label}>Limits:</div>
-        <div className={styles.flexGrow}>
-          <span className={styles.centeredRow}>
-            <div>Red =&nbsp;</div>
-            <input className={styles.inputField} value={maxRed} onChange={handleRedChange} type="number" />
-            <div>Green =&nbsp;</div>
-            <input className={styles.inputField} value={maxGreen} onChange={handleGreenChange} type="number" />
-            <div>Blue =&nbsp;</div>
-            <input className={styles.inputField} value={maxBlue} onChange={handleBlueChange} type="number" />
-          </span>          
-        </div>
-      </div>
-      <Solver part1={part1} part2={part2} testFile='Test02.txt' />
+      
+      <InputRow label="Limits:">
+        <NumberInput label="Red" set={setMaxRed} value={maxRed} />
+        <NumberInput label="Green" set={setMaxGreen} value={maxGreen} />
+        <NumberInput label="Blue" set={setMaxBlue} value={maxBlue} />
+      </InputRow>
+
+      <Solver part1={part1} part2={part2} testFile="Test02.txt" />
       <WorkingBox>
         { part && <>
         <div>

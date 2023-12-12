@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
+import Solver, { WorkingBox } from '../components/Solver';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
-import WorkingBox from '../components/WorkingBox';
 
 export default function Render() { 
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
-import PipeMazeRender from '../components/PipeMazeRender';
+import Solver, { Row } from '../components/Solver';
+import PipeMazeSim from '../components/PipeMazeSim';
 
 export default function Render() {
 
@@ -26,11 +26,13 @@ export default function Render() {
   const [isPart1, SetIsPart1] = useState<boolean>(true);
   
   return (
-    <PageLayout pageTitle={"Day 10: Pipe Maze Conundrum"} >
-      <Solver part1={part1} part2={part2} testFile='Test10.txt' />
+    <PageLayout pageTitle="Day 10: Pipe Maze Conundrum" >
+      <Solver part1={part1} part2={part2} testFile="Test10.txt" />
+      <Row label="Working :">
       {
-        maze && <PipeMazeRender maze={maze} isPart1={isPart1} />
+        maze && <PipeMazeSim maze={maze} isPart1={isPart1} />
       }
+      </Row>
     </PageLayout>
   );
 }
