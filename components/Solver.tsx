@@ -36,6 +36,7 @@ export default function Solver({ part1, part2, testFile }: SolverProps) {
   }
 
   const getLines = (input: string) : string[] => {
+    if (input.length === 0) { return []; }
     return input.split('\n').map(l => l.trim());
   }
 
@@ -101,6 +102,45 @@ export function WorkingBox({ children }: { children: ReactNode }) {
         {children}
       </div>
     </div>
+  );
+}
+
+export function PagedWorkingBox({ children, label, maxIndex, index, setIndex }: { children: ReactNode, label: string, maxIndex: number, index: number, setIndex: Dispatch<SetStateAction<number>> }) {
+
+  const prev = () => {
+    if (index <= 0) { return; }
+    setIndex(index - 1);
+  }
+
+  const next = () => {
+    if (index + 1 >= maxIndex) { return; }
+    setIndex(index + 1);
+  }
+
+  useEffect(() => {
+    if (index >= maxIndex) {
+      setIndex(0);
+    }    
+  }, [maxIndex]);
+  
+  return (
+    <>
+      <div className={styles.row}>
+        <div className={styles.label}>Working:</div>
+        <div>
+          <button className={styles.button} onClick={prev} disabled={maxIndex === 0}>Prev</button>
+          <button className={styles.button} onClick={next} disabled={maxIndex === 0}>Next</button>
+          { maxIndex !== 0 && <span>{label}: {index+1} / {maxIndex}</span>}
+          
+        </div>
+      </div>
+      <div className={styles.row}>
+      <div className={styles.label}></div>
+        <div className={styles.working}>
+          { children }
+        </div>
+      </div>
+    </>
   );
 }
 

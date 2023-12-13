@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver from '../components/Solver';
+import Solver, { PagedWorkingBox } from '../components/Solver';
 import styles from '../components/Solver.module.css';
 
 export default function Render() {
@@ -8,7 +8,6 @@ export default function Render() {
   const part1 = (input: string[]): number => {
     const oasises = input.map(l => new Oasis(l));
     const values = oasises.map(o => o.findNextValue());
-    updateIndex(oasises.length);
     setOasises(oasises);
     setPart1(true);
     
@@ -18,53 +17,28 @@ export default function Render() {
   const part2 = (input: string[]): number => {
     const oasises = input.map(l => new Oasis(l));
     const values = oasises.map(o => o.findPreviousValue());
-    updateIndex(oasises.length);
     setOasises(oasises);
     setPart1(false);
     return values.reduce((acc, v) => acc + v, 0);
   }
 
-  const prev = () => {
-    if (index <= 0) { return; }
-    setIndex(index - 1);
-  }
-
-  const next = () => {
-    const max = oasises ? oasises.length - 1 : 0;
-    if (index >= max) { return; }
-    setIndex(index + 1);
-  }
-
-  const updateIndex = (newLength: number) => {
-    if (index >= newLength) { setIndex(0); }
-  }
-
   const [oasises, setOasises] = useState<Oasis[] | null>(null)
   const [index, setIndex] = useState<number>(0);
+  const maxIndex = (): number => { return oasises ? oasises.length : 0; }
   const [isPart1, setPart1] = useState<boolean>(true);
   
   return (
     <PageLayout pageTitle={"Day 09: Mirage Maintenance"} >
       <Solver part1={part1} part2={part2} testFile="Test09.txt" /> 
-      <div className={styles.row}>
-        <div className={styles.label}>Working:</div>
-        <div>
-          <button className={styles.button} onClick={prev} disabled={oasises === null}>Prev</button>
-          <button className={styles.button} onClick={next} disabled={oasises === null}>Next</button>
-          { oasises && <span>Oasis: {index+1} / {oasises.length}</span> }
-        </div>
-      </div>
-      <div className={styles.row}>
-      <div className={styles.label}></div>
-        <div className={styles.working}>
-          { oasises && RenderOasis(oasises[index]) }
-        </div>
-      </div>  
+      <PagedWorkingBox label="Oasis" index={index} maxIndex={maxIndex()} setIndex={setIndex} >
+        { oasises && RenderOasis(oasises[index]) }
+      </PagedWorkingBox>
     </PageLayout>
   );
 
   function RenderOasis(oasis: Oasis) {
 
+    if (oasis == null) { return; }
     const l1 = Math.max(...oasis.values[0]).toString().length;
     const l2 = Math.min(...oasis.values[0]).toString().length;
     const l = Math.max(l1, l2);

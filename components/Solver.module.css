@@ -51,7 +51,7 @@
 .working {
   background-color: white;
   flex-grow: 1;
-  height: 180px;
+  height: 320px;
   border: 1px solid black; 
   resize: vertical;
   overflow: auto;

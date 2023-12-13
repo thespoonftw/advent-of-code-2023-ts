@@ -1,20 +1,19 @@
-import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver from '../components/Solver';
 
 export default function Render() {
 
   const part1 = (input: string[]): number => {
-    const records = input.map(i => new ConditionRecord(i));
-    records.forEach(r => r.calculatePermutations());
-    return records.reduce((acc, c) => acc + c.permutations, 0);
+    const checker = new RecordChecker(input);
+    checker.findPermutations();
+    return checker.sum();
   }
 
   const part2 = (input: string[]): number => {
-    const records = input.map(i => new ConditionRecord(i));
-    records.forEach(r => r.unfold(5));
-    records.forEach(r => r.calculatePermutations())
-    return records.reduce((acc, c) => acc + c.permutations, 0);
+    const records = new RecordChecker(input);
+    records.unfold(5);
+    records.findPermutations();
+    return records.sum();
   }
   
   return (
@@ -25,105 +24,77 @@ export default function Render() {
 
 }
 
-class ConditionRecord {
+class RecordChecker {
 
-  str: string;
-  springLengths: number[];
-  permutations: number = 0;
+  records: ConditionRecord[];
   cache: { [key: string]: number } = {};
 
-  constructor(line: string) {
-
-    const split = line.split(" ");
-    this.str = split[0];
-    this.springLengths = split[1].split(",").map(s => parseInt(s));
+  constructor(input: string[]) {
+    this.records = input.map(i => new ConditionRecord(i));
   }
 
   unfold(factor: number) {
-    this.springLengths = Array(factor).fill([...this.springLengths]).flat();
-    this.str = Array(factor).fill(this.str).join("?");
+    for (const record of this.records) {
+      record.groups = Array(factor).fill([...record.groups]).flat();
+      record.str = Array(factor).fill(record.str).join("?");
+    }
   }
 
-  calculatePermutations() {
-    this.permutations = this.getPermutationsRecursive(0, 0);
+  findPermutations() {
+    for (const record of this.records) {
+      record.permutations = this.getPermutationsRecursive(record.str, record.groups);
+    }
   }
 
-  getPermutationsRecursive(springIndex: number, strIndex: number) : number {
+  sum() {
+    return this.records.reduce((acc, c) => acc + c.permutations, 0);
+  }
 
-    let key = springIndex + "-" + strIndex;
+  getPermutationsRecursive(str: string, groups: number[]) : number {
+
+    // no more str remaining, check if groups is empty
+    if (str.length === 0) { return groups.length === 0 ? 1 : 0; }
+
+    // no more groups remaining, check if there's no more # left
+    if (groups.length === 0) { return str.includes("#") ? 0 : 1; } 
+
+    const key = str + "-" + groups.join(",");
     if (this.cache[key]) { return this.cache[key]; }
 
-    let r = 0;
-    const matches: number[] = [];
-    
-    const springLength = this.springLengths[springIndex];
-    const max = this.str.length - springLength;
+    let re = 0;
+    const c = str[0];
 
-    for (let i = strIndex; i <= max; i++) {
-
-      const end = i + springLength;      
-      if (this.str[i - 1] === "#") { break; } // if we're leaving behind a #, stop
-      if (this.str[end] === "#") { continue; } // if next character along is a #, not valid
-      const slice = this.str.slice(i, end);
-      if (slice.includes(".")) { continue; } // slice contains a "."", not valid
-      
-      matches.push(end);
+     // if we start with a . (or a ?), trim the first character
+    if (c === "." || c === "?") { 
+      re += this.getPermutationsRecursive(str.slice(1), groups);
     }
 
-    if (springIndex + 1 >= this.springLengths.length) {
-      for (const m of matches) {
-        const remaining = this.str.substring(m, this.str.length);
-        if (remaining.includes('#')) { continue; }
-        r += 1;
-      }
-      
-    } else {
-      for (const m of matches) {
-        r += this.getPermutationsRecursive(springIndex + 1, m + 1);
+    // if we start with a # (or a ?), check for a group
+    if (c === "#" || c === "?") { 
+
+      const check1 = str.length >= groups[0]; // must be enough remaining characters
+      const check2 = !str.slice(0, groups[0]).includes("."); // does the slice contain a "."
+      const check3 = str[groups[0]] !== "#"; // the following character must not be #
+
+      if (check1 && check2 && check3) {
+        re += this.getPermutationsRecursive(str.slice(groups[0] + 1), groups.slice(1))
       }
     }
-    
-    this.cache[key] = r;
-    return r;
+
+    this.cache[key] = re;
+    return re;
   }
+}
 
-  /*
-  getPermutationsRecursive(springIndex: number, soFar: string) : string[] {
+class ConditionRecord {
 
-    const r: string[] = [];
-    const matches: string[] = [];
-    
-    const springLength = this.springLengths[springIndex];
-    const max = this.str.length - springLength;
-    const start = soFar.length;
+  str: string;
+  groups: number[];
+  permutations: number = 0;
 
-    for (let i = start; i <= max; i++) {
-      
-      if (this.str[i - 1] === "#") { break; } // if we're leaving behind a #, stop
-      if (this.str[i + springLength] === "#") { continue; } // if next character along is a #, not valid
-      const slice = this.str.slice(i, i + springLength);
-      if (slice.includes(".")) { continue; } // slice contains a "."", not valid
-      
-      const newStr = soFar + this.str.substring(start, i) + "#".repeat(springLength);
-      matches.push(newStr);
-    }
-
-    if (springIndex + 1 >= this.springLengths.length) {
-      for (const m of matches) {
-        const remaining = this.str.substring(m.length, this.str.length);
-        if (remaining.includes('#')) { continue; }
-        const finalStr = (m + remaining).replaceAll("?", ".");
-        r.push(finalStr);
-      }
-      
-    } else {
-      for (const m of matches) {
-        r.push(...this.getPermutationsRecursive(springIndex + 1, m + "."))
-      }
-    }
-    
-    return r;
+  constructor(line: string) {
+    const split = line.split(" ");
+    this.str = split[0];
+    this.groups = split[1].split(",").map(s => parseInt(s));
   }
-  */
-
 }
