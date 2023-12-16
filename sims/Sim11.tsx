@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import styles from './Solver.module.css';
-import { InputRow, Row } from './Solver';
+import styles from '../components/Solver.module.css';
+import { InputRow, Row } from '../components/Solver';
 import { Galaxy } from '../pages/Day11';
 
 export default function ExpansionSim({ lines }: { lines: string[] | null }) {

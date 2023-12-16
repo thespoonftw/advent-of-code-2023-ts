@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver, { WorkingBox } from '../components/Solver';
-import BoatSim from '../components/BoatSim';
+import BoatSim from '../sims/Sim06';
 import { ADashedLine, AHeader, ACell } from '../components/AsciiTable';
 
 export default function Render() {

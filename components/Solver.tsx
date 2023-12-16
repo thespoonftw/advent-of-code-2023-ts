@@ -67,8 +67,8 @@ export default function Solver({ part1, part2, testFile }: SolverProps) {
       </Row>
 
       <Row label="Run:">
-        <button className={styles.button} onClick={() => handleClick(part1)}>Part 1</button>
-        <button className={styles.button} onClick={() => handleClick(part2)}>Part 2</button>
+        <Button label="Part 1" onClick={() => handleClick(part1)} />
+        <Button label="Part 2" onClick={() => handleClick(part2)} />
       </Row>
 
       <Row label="Result:">
@@ -82,6 +82,12 @@ export default function Solver({ part1, part2, testFile }: SolverProps) {
   );
 }
 
+export function Button({ label, onClick, disabled = false }: { label: string, onClick: () => void, disabled?: boolean }) {
+
+  return (
+    <button className={styles.button} onClick={onClick} disabled={disabled}>{label}</button>
+  );
+}
 
 export function Row({ children, label }: { children: ReactNode, label: string }) {
 

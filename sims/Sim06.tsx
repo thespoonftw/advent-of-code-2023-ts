@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import styles from './Solver.module.css';
-import { InputRow, NumberInput, Row } from './Solver';
+import styles from '../components/Solver.module.css';
+import { InputRow, NumberInput, Row } from '../components/Solver';
 
 export default function BoatSim() {
 

@@ -2,7 +2,7 @@ import { ChangeEvent, SetStateAction, useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver, { InputRow, NumberInput } from '../components/Solver';
 import styles from '../components/Solver.module.css';
-import ExpansionSim from '../components/ExpansionSim';
+import ExpansionSim from '../sims/Sim11';
 
 export default function Render() {
 

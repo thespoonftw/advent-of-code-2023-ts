@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import Solver, { Row } from '../components/Solver';
-import PipeMazeSim from '../components/PipeMazeSim';
+import PipeMazeSim from '../sims/Sim10';
 
 export default function Render() {
 

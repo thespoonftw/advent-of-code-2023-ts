@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import styles from './Solver.module.css';
+import styles from '../components/Solver.module.css';
 import { Tile, PipeMaze } from '../pages/Day10';
 
 export default function Render({ maze, isPart1 }: { maze: PipeMaze, isPart1: boolean }) {
