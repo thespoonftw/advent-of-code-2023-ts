@@ -7,16 +7,18 @@ export default function Render() {
 
   const part1 = (input: string[]): number => {
     const maze = new ReflectionMaze(input);
-    setSimMaze(maze);
-    return maze.simulateLaser(0, Direction.East);
+    const mazeSim = new ReflectionMaze(input);
+    mazeSim.initialize(0, Direction.East);
+    setSimMaze(mazeSim);
+    return maze.simulate(0, Direction.East);
   }
 
   const part2 = (input: string[]): number => {
     const maze = new ReflectionMaze(input);
-    const bestMaze = new ReflectionMaze(input);
     const re = maze.findMostEnergizedTiles();
-    bestMaze.simulateLaser(maze.bestIndex!, maze.bestDirection!);
-    setSimMaze(bestMaze);
+    const mazeSim = new ReflectionMaze(input);
+    mazeSim.initialize(maze.bestIndex!, maze.bestDirection!);
+    setSimMaze(mazeSim);
     return re;
   }
 
@@ -36,10 +38,12 @@ export class ReflectionMaze {
   width: number;
   height: number;
   energizedTiles: Tile[] = []
+
   bestEnergy: number = 0;
   bestIndex: number | null = 0;
   bestDirection: Direction | null = null;
 
+  activeLasers: Laser[] = [];
 
   constructor(input: string[]) {
 
@@ -61,23 +65,21 @@ export class ReflectionMaze {
   findMostEnergizedTiles() : number {
 
     for (let i = 0; i < this.height; i++) {
-      this.simulateLaser(i, Direction.East)
-      this.simulateLaser(i, Direction.West)
+      this.simulateAndRecord(i, Direction.East)
+      this.simulateAndRecord(i, Direction.West)
     }
 
     for (let i = 0; i < this.width; i++) {
-      this.simulateLaser(i, Direction.North);
-      this.simulateLaser(i, Direction.South);
+      this.simulateAndRecord(i, Direction.North);
+      this.simulateAndRecord(i, Direction.South);
     }
 
     return this.bestEnergy;
   }
 
-  simulateLaser(index: number, dir: Direction): number {
+  simulateAndRecord(index: number, dir: Direction) {
     this.resetMaze();
-    const start = this.getStartingCoord(index, dir);
-    this.drawLaserRecursive(start, dir);
-    const energy = this.energizedTiles.length;
+    const energy = this.simulate(index, dir);
     if (energy > this.bestEnergy) {
       this.bestEnergy = energy;
       this.bestIndex = index;
@@ -86,37 +88,52 @@ export class ReflectionMaze {
     return energy;
   }
 
-  getStartingCoord(index: number, dir: Direction) {
-    switch (dir) {
-      case Direction.East: return new Coord(-1, index);
-      case Direction.West: return new Coord(this.width, index);
-      case Direction.South: return new Coord(index, -1);
-      case Direction.North: return new Coord(index, this.height);
+  simulate(index: number, dir: Direction) : number {
+    this.initialize(index, dir);
+    while (this.simulateStep()) { }
+    return this.energizedTiles.length;
+  }
+
+  initialize(index: number, dir: Direction) {
+    const start = this.getStartingCoord(index, dir);
+    const firstLaser = new Laser(start, dir);
+    this.activeLasers = [firstLaser];
+  }
+
+  simulateStep() : boolean {
+    const upcomingLasers = [];
+    for (const laser of this.activeLasers) {
+      const newDirs = this.getNextDirections(laser);
+      const newLasers = newDirs.map(d => new Laser(laser.coord.getNextInDirection(d), d))
+      upcomingLasers.push(...newLasers);
     }
+    this.activeLasers = upcomingLasers;
+    return this.activeLasers.length > 0;
   }
 
-  resetMaze() {
-    this.energizedTiles = [];
-    this.tiles.flat().forEach(t => t.reset());
-  }
+  getNextDirections(laser: Laser) : Direction[] {
 
-  drawLaserRecursive(prev: Coord, dir: Direction) {
+    const t = this.getTile(laser.coord);
+    if (t === null) { return []; }
 
-    const coord = prev.getNextInDirection(dir);
-    const t = this.getTile(coord);
-    if (t === null) { return; }
-
-    const opposite = getOppositeDirection(dir);
-    if (t.energizedDirections.includes(opposite)) { return; }    
+    const opposite = getOppositeDirection(laser.dir);
+    if (t.energizedDirections.includes(opposite)) { return []; }    
     
-    const newDirections = getNextDirection(dir, t.type);
+    const newDirections = getNextDirection(laser.dir, t.type);
 
     this.energizedTiles.push(t);
     t.energizedDirections.push(opposite);
     t.energizedDirections.push(...newDirections);
 
-    for (const newDir of newDirections) {
-      this.drawLaserRecursive(coord, newDir);
+    return newDirections;
+  }
+
+  getStartingCoord(index: number, dir: Direction) {
+    switch (dir) {
+      case Direction.East: return new Coord(0, index);
+      case Direction.West: return new Coord(this.width - 1, index);
+      case Direction.South: return new Coord(index, 0);
+      case Direction.North: return new Coord(index, this.height - 1);
     }
   }
 
@@ -126,6 +143,11 @@ export class ReflectionMaze {
     } else { 
       return null;
     }
+  }
+
+  resetMaze() {
+    this.energizedTiles = [];
+    this.tiles.flat().forEach(t => t.reset());
   }
 
 
@@ -153,6 +175,18 @@ class Tile {
 
   reset() {
     this.energizedDirections = [];
+  }
+
+}
+
+class Laser {
+
+  coord: Coord;
+  dir: Direction;
+
+  constructor(coord: Coord, dir: Direction) {
+    this.coord = coord;
+    this.dir = dir;
   }
 
 }

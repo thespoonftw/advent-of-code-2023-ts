@@ -10,8 +10,15 @@ export default function Render({ maze }: { maze: ReflectionMaze | null }) {
     renderSim();
   });
 
+  function run() {
+
+  }
+
   return (
     <>
+      <InputRow label="Sim" >
+        <Button label="Run" onClick={run} />
+      </InputRow>
       <Row label="">
         <div className={styles.flexGrow}>
           <div className={styles.sim}>
