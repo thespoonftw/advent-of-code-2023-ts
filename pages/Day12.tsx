@@ -27,7 +27,7 @@ export default function Render() {
 class RecordChecker {
 
   records: ConditionRecord[];
-  cache: { [key: string]: number } = {};
+  cache = new Map<string, number>;
 
   constructor(input: string[]) {
     this.records = input.map(i => new ConditionRecord(i));
@@ -59,7 +59,8 @@ class RecordChecker {
     if (groups.length === 0) { return str.includes("#") ? 0 : 1; } 
 
     const key = str + "-" + groups.join(",");
-    if (this.cache[key]) { return this.cache[key]; }
+    const cached = this.cache.get(key);
+    if (cached) { return cached; }
 
     let re = 0;
     const c = str[0];
@@ -81,7 +82,7 @@ class RecordChecker {
       }
     }
 
-    this.cache[key] = re;
+    this.cache.set(key, re);
     return re;
   }
 }
