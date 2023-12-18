@@ -78,7 +78,7 @@ export class ReflectionMaze {
   }
 
   simulateAndRecord(index: number, dir: Direction) {
-    this.resetMaze();
+    this.reset();
     const energy = this.simulate(index, dir);
     if (energy > this.bestEnergy) {
       this.bestEnergy = energy;
@@ -145,7 +145,7 @@ export class ReflectionMaze {
     }
   }
 
-  resetMaze() {
+  reset() {
     this.energizedTiles = [];
     this.tiles.flat().forEach(t => t.reset());
   }

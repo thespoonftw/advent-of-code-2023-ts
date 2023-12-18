@@ -10,14 +10,23 @@ export default function Render({ maze }: { maze: ReflectionMaze | null }) {
     renderSim();
   });
 
-  function run() {
-
+  async function run() {
+    maze!.reset();
+    renderSim();
+    setIsRunning(true);
+    while (maze!.simulateStep()) {
+      await delay(20);
+      renderSim();
+    }
+    setIsRunning(false);
   }
+
+  const [isRunning, setIsRunning] = useState<boolean>(false);
 
   return (
     <>
-      <InputRow label="Sim" >
-        <Button label="Run" onClick={run} />
+      <InputRow label="Sim:" >
+        <Button label="Run" onClick={run} disabled={isRunning || maze === null} />
       </InputRow>
       <Row label="">
         <div className={styles.flexGrow}>
@@ -30,6 +39,12 @@ export default function Render({ maze }: { maze: ReflectionMaze | null }) {
       </Row>
     </>
   );
+
+  function delay(milliseconds: number){
+    return new Promise(resolve => {
+      setTimeout(resolve, milliseconds);
+    });
+  }
 
   function renderSim() {
     if (maze === null) { return; }

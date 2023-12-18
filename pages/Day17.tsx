@@ -21,17 +21,22 @@ export default function Render() {
   }
 
   const [simCity, setSimCity] = useState<FactoryCity | null>(null);
+  function getFontSize() : number { return simCity && simCity.width > 20 ? 8 : 14; }
 
   return (
     <PageLayout pageTitle={"Day 17: Clumsy Crucible"} >
       <Solver part1={part1} part2={part2} testFile="Test17.txt" />
       <WorkingBox>
-        <div>&nbsp;</div>
-        { simCity && simCity.blocks.map((row, y) =>
-          <div key={y}> { row.map((node, x) =>
-            <span key={x} style={{color: node.inFinalPath ? "red" : "black"}}>{node.value}</span>
-          )}</div>
-        )}
+        { simCity && 
+          <div style={{fontSize: getFontSize()}}>
+            { simCity.blocks.map((row, y) =>
+              <div key={y}>
+                { row.map((node, x) =>
+                <span key={x} style={{color: node.inFinalPath ? "red" : "black"}}>{node.value}</span>
+              )}</div>
+            )
+          }</div>
+        }
       </WorkingBox>
     </PageLayout>
   );

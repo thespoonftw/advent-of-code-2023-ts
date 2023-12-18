@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../components/Solver.module.css';
 import { Button, InputRow, Row, WorkingBox } from '../components/Solver';
-import { LensConfiguration, Step } from '../pages/Day15';
+import { Box, LensConfiguration, Step } from '../pages/Day15';
 import { ACell, ADashedLine, AHeader } from '../components/AsciiTable';
 
 export default function Render({ config }: { config: LensConfiguration | null }) {
@@ -16,7 +16,7 @@ export default function Render({ config }: { config: LensConfiguration | null })
   return (
     <>
       <InputRow label="Sim :">
-        <Button label="Next" onClick={next} disabled={config === null} />
+        <Button label="Next" onClick={next} disabled={config === null || index === getMaxIndex()} />
         <Button label="Reset" onClick={reset} disabled={config === null} />
       </InputRow>
       <WorkingBox>
@@ -32,12 +32,10 @@ export default function Render({ config }: { config: LensConfiguration | null })
         </div>
         <ADashedLine length={72} />
         {
-          Array.from({ length: 128 }).map((_, i) => (
+          config && config.boxes.filter(b => b.lenses.length > 0).map((box, i) => (
             <div key={i}>
               <b>{ String(i).padStart(4, '\u00A0') }:&nbsp;</b>
-              { String("contents").padEnd(30, '\u00A0') }
-              <b>{ String(i + 128).padStart(4, '\u00A0') }:&nbsp;</b>
-              { "contents" }
+              { getBoxString(box) }
             </div>
           ))
         }
@@ -46,10 +44,16 @@ export default function Render({ config }: { config: LensConfiguration | null })
   );
 
   function reset() {
+    config!.reset();
     setIndex(0);
   }
 
   function next() {
+    config!.takeStep();
     setIndex(Math.min(getMaxIndex(), index + 1));
+  }
+
+  function getBoxString(box: Box) : string {
+    return box.lenses.map(l => l.str).join(", ");
   }
 }

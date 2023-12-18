@@ -54,6 +54,7 @@ export class LensConfiguration {
   boxes: Box[] = new Array(256).fill(0).map(() => new Box());
   steps: Step[];
   focusingPower: number = 0;
+  stepIndex: number = 0;
 
   constructor(str: string) {
     this.steps = str.split(",").map(s => new Step(s));
@@ -61,23 +62,8 @@ export class LensConfiguration {
 
   findFocusingPower() : number {
 
-    for (const step of this.steps) {
-      const instruction = step.instruction;
-      const box = this.boxes[step.hashValue];
+    while(this.takeStep()) {
 
-      if (instruction instanceof Lens) {
-        const existingLens = box.lenses.find(l => l.label === instruction.label);
-
-        if (existingLens) {
-          existingLens.focalLength = instruction.focalLength;
-
-        } else {
-          box.lenses.push(instruction);
-        }
-
-      } else {
-        box.lenses = box.lenses.filter(l => l.label !== instruction.label);
-      }
     }
 
     let re = 0;
@@ -92,19 +78,52 @@ export class LensConfiguration {
     return re;
   }
 
+  takeStep() : boolean {
+
+    const step = this.steps[this.stepIndex];
+    const instruction = step.instruction;
+    const box = this.boxes[step.hashValue];
+
+    if (instruction instanceof Lens) {
+      const existingLens = box.lenses.find(l => l.label === instruction.label);
+
+      if (existingLens) {
+        existingLens.focalLength = instruction.focalLength;
+
+      } else {
+        box.lenses.push(instruction);
+      }
+
+    } else {
+      box.lenses = box.lenses.filter(l => l.label !== instruction.label);
+    }
+
+    this.stepIndex ++;
+    return this.stepIndex === this.steps.length;
+  }
+
+  reset() {
+    this.stepIndex = 0;
+    this.boxes.forEach(b => b.lenses = [])
+  }
 
 
 }
 
 class Instruction {
-  label: string = "";  
+  str: string;
+  label: string; 
+
+  constructor(str: string, label: string) {
+    this.str = str;
+    this.label = label;
+  }
 }
 
 class RemoveLens extends Instruction {
 
   constructor(str: string) {
-    super();
-    this.label = str.slice(0, str.length - 1);
+    super(str, str.slice(0, str.length - 1));
   }
 }
 
@@ -112,13 +131,12 @@ class Lens extends Instruction {
   focalLength: number;
 
   constructor(str: string) {
-    super();
     const split = str.split("=");
-    this.label = split[0];
+    super(str, split[0]);
     this.focalLength = parseInt(split[1]);
   }
 }
 
-class Box {
+export class Box {
   lenses: Lens[] = [];
 }
