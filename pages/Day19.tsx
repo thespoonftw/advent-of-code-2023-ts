@@ -8,14 +8,16 @@ export default function Render() {
     const emptyRowIndex = input.indexOf("");
     const sorter = new MachinePartSorter(input.slice(0, emptyRowIndex));
     const parts = input.slice(emptyRowIndex + 1, input.length).map(l => createSimpleMachinePart(l));
-    return sorter.sortAndSum(parts);
+    sorter.sort(parts);
+    return sorter.sumValues();
   }
 
   const part2 = (input: string[]): number => {
     const emptyRowIndex = input.indexOf("");
     const sorter = new MachinePartSorter(input.slice(0, emptyRowIndex));
     const parts = [createAdvancedMachinePart()]
-    return sorter.sortAndSum(parts);
+    sorter.sort(parts);
+    return sorter.sumCombos();
   }
 
 
@@ -39,9 +41,15 @@ class MachinePartSorter {
     workflowsArr.forEach(w => this.workflows.set(w.label, w));
   }
 
-  sortAndSum(input: MachinePart[]) : number {
+  sort(input: MachinePart[]) {
     input.forEach(p => this.sortRecursive(p, "in", 0));
+  }
 
+  sumValues() : number {
+    return this.accepted.reduce((acc, p) => acc += p.getSumOfAttributes(), 0);
+  }
+
+  sumCombos() : number {
     let sum = 0;
     for (const part of this.accepted) {
       sum += part.getRange("x").getWidth() * part.getRange("m").getWidth() * part.getRange("a").getWidth() * part.getRange("s").getWidth();
