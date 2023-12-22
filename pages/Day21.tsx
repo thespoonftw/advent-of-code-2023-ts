@@ -1,171 +1,210 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { WorkingBox } from '../components/Solver';
+import Solver, { InputRow, NumberInput, WorkingBox } from '../components/Solver';
+import Sim21 from '../sims/Sim21';
 
 export default function Render() {
 
   const part1 = (input: string[]): number => {
-    let machine = new PulseMachine(input);
+    
+    setGarden(new Garden(input, 1));
 
-    for (let i = 0; i < 1000; i++) {
-      machine.pushButton();
-    }
-
-    return machine.lowPulseCount * machine.highPulseCount;
+    const garden = new Garden(input, 1);
+    garden.takeSteps(64);
+    return garden.countOccupied();
   }
 
   const part2 = (input: string[]): number => {
-    let machine = new PulseMachine(input);
 
-    for (let i = 0; i < 10000; i++) {
-      machine.pushButton();
-    }
+    const totalSteps = part2Steps;
+    const gardenSize = input.length;
+    const i = Math.floor(totalSteps / gardenSize);
+    const remainder = totalSteps - (i * gardenSize);
+    const stepsToSimulate = Math.min(part2Steps, (2 * gardenSize) + remainder);
 
-    return 0;
+    const garden = new Garden(input, 7);
+    garden.takeSteps(stepsToSimulate);
+
+    let sum = 0;
+
+    const phase1Count = i * i;
+    const phase2Count = (i - 1) * (i - 1);
+    const evenDiamond = i % 2 === 0;
+
+    // in-phase count
+    const c = evenDiamond ? phase2Count : phase1Count;
+    sum += garden.countOccupiedAt(3, 3) * c;
+
+    // out-phase count
+    const p = evenDiamond ? phase1Count : phase2Count;
+    sum += garden.countOccupiedAt(3, 2) * p;
+
+    // unique diamond corners
+    sum += garden.countOccupiedAt(3, 0);
+    sum += garden.countOccupiedAt(3, 1);
+    sum += garden.countOccupiedAt(3, 5);
+    sum += garden.countOccupiedAt(3, 6);
+    sum += garden.countOccupiedAt(0, 3);
+    sum += garden.countOccupiedAt(1, 3);
+    sum += garden.countOccupiedAt(5, 3);
+    sum += garden.countOccupiedAt(6, 3);
+
+    // outer diamond edges
+    sum += garden.countOccupiedAt(2, 1) * i; // top left
+    sum += garden.countOccupiedAt(4, 1) * i; // top right
+    sum += garden.countOccupiedAt(2, 5) * i; // bottom left
+    sum += garden.countOccupiedAt(4, 5) * i; // bottom right
+
+    // inner diamond edges
+    sum += garden.countOccupiedAt(2, 2) * (i - 1); // top left
+    sum += garden.countOccupiedAt(4, 2) * (i - 1); // top right
+    sum += garden.countOccupiedAt(2, 4) * (i - 1); // bottom left
+    sum += garden.countOccupiedAt(4, 4) * (i - 1); // bottom right  
+
+    setGarden(garden);
+    return sum;
   }
 
+  const [garden, setGarden] = useState<Garden | null>(null);
+  const [part2Steps, setPart2Steps] = useState<number>(50);
 
   return (
-    <PageLayout pageTitle={"Day 20: Pulse Propagation"} >
-      <Solver part1={part1} part2={part2} testFile="Test20.txt" />
+    <PageLayout pageTitle={"Day 21: Step Counter"} >
+      <InputRow label="Params:">
+        <NumberInput label="Part 2 Steps" set={setPart2Steps} value={part2Steps} />
+      </InputRow>
+      <Solver part1={part1} part2={part2} testFile="Test21.txt" />
+      <Sim21 garden={garden} />
     </PageLayout>
   );
 }
 
-class PulseMachine {
+export class Garden {
 
-  moduleMap: Map<string, Module> = new Map<string, Module>();
-  lowPulseCount: number = 0;
-  highPulseCount: number = 0;
-  pressCount: number = 0;
+  cells: Cell[][] = [];
+  startX: number = NaN;
+  startY: number = NaN;
+  size: number;
+  startCell: Cell = null!;
+  updatedCells: Cell[] = [];
+  stepNumber: number = 0;
+  multiplier: number;
+  baseSize: number;
 
-  constructor(input: string[]) {
+  constructor(input: string[], multiplier: number) {
 
-    const moduleArr = input.map(l => this.createModule(l));
-    moduleArr.forEach(m => this.moduleMap.set(m.label, m));
+    this.baseSize = input.length;
+    this.size = input.length * multiplier;
+    this.multiplier = multiplier;
 
-    // need to initialize connections to Conjuctions
-    for (const source of moduleArr) {
-      for (const destination of source.destinations) {
-        const module = this.moduleMap.get(destination);
-        if (module instanceof Conjuction) {
-          module.createConnection(source.label);
-        }
+    for (let y = 0; y < this.size; y++) {
+      const yIndex = y % this.baseSize;
+      const row = input[yIndex];
+      const cellRow: Cell[] = [];
+      this.cells.push(cellRow);
+      for (let x = 0; x < this.size; x++) {
+        const xIndex = x % this.baseSize;
+        cellRow.push(new Cell(row[xIndex], x, y));
       }
+    }
+
+    const mid = (this.size - 1) / 2;
+    this.startCell = this.cells[mid][mid];
+    this.startCell.state = OccupiedState.Even;
+    this.updatedCells = [this.startCell];
+  }
+  
+  takeSteps(n: number) {
+    for (let i = 0; i < n; i++){
+      this.takeStep();
     }
   }
 
-  pushButton() {
+  takeStep() {
 
-    this.pressCount++;
-    let activePulses: Pulse[] = [new Pulse(PulseType.Low, "", "broadcaster")];
+    this.stepNumber++;
+    const isEven = this.stepNumber % 2 === 0;
 
-    while (activePulses.length > 0) {
+    let newUpdated = [];
 
-      const newPulses: Pulse[] = [];
-
-      for (const pulse of activePulses) {
-        if (pulse.type === PulseType.High) { this.highPulseCount++; }
-        if (pulse.type === PulseType.Low) { this.lowPulseCount++; }
-
-        const destinationModule = this.moduleMap.get(pulse.destination);
-        if (!destinationModule) { continue; }
-
-        if (pulse.destination === "dt" && pulse.type === PulseType.High) {
-          console.log(this.pressCount);
-          console.log(pulse);
-        }
-
-        const resultingPulses = destinationModule.sendPulse(pulse);
-        newPulses.push(...resultingPulses);
-      }
-
-      activePulses = newPulses;
+    for (const cell of this.updatedCells) {
+      const neighbours = this.getCellNeighbours(cell);
+      const updatedNeighbours = neighbours.filter(c => c.tryUpdate(isEven));
+      newUpdated.push(...updatedNeighbours);
     }
+
+    this.updatedCells = newUpdated;
   }
 
-  createModule(line: string) : Module {
-    if (line.startsWith("broadcaster")) {
-      return new Broadcaster(" " + line);
-    } else if (line.startsWith("%")) {
-      return new FlipFlop(line);
-    } else if (line.startsWith("&")) {
-      return new Conjuction(line);
+  getCellNeighbours(cell: Cell) : Cell[] {
+    const re = [];
+    if (cell.x > 0) { re.push(this.cells[cell.y][cell.x - 1]); }
+    if (cell.y > 0) { re.push(this.cells[cell.y - 1][cell.x]); }
+    if (cell.x < this.size - 1) { re.push(this.cells[cell.y][cell.x + 1]); }
+    if (cell.y < this.size - 1) { re.push(this.cells[cell.y + 1][cell.x]); }
+    return re;
+  }
+
+  countOccupied() : number {
+    const isEven = this.stepNumber % 2 === 0;
+    return this.cells.flat().filter(c => c.isOccupied(isEven)).length;
+  }
+
+  countOccupiedAt(xIndex: number, yIndex: number) : number {
+    const xStart = xIndex * this.baseSize;
+    const xEnd = (xIndex + 1) * this.baseSize;
+    const yStart = yIndex * this.baseSize;
+    const yEnd = (yIndex + 1) * this.baseSize;
+    const isEven = this.stepNumber % 2 === 0;
+    const subArray = this.cells.slice(yStart, yEnd).map(row => row.slice(xStart, xEnd));
+    return subArray.flat().filter(c => c.isOccupied(isEven)).length;
+  }
+
+  reset() {
+    this.stepNumber = 0;
+    this.updatedCells = [this.startCell];
+    this.cells.flat().forEach(c => c.reset());
+    this.startCell.state = OccupiedState.Even;
+  }
+
+}
+
+export class Cell {
+
+  state: OccupiedState;
+  x: number;
+  y: number;
+
+  constructor(char: string, x: number, y: number) {
+    if (char === "#") {
+      this.state = OccupiedState.Rock;
     } else {
-      throw new Error();
+      this.state = OccupiedState.Never;
     }
+    this.x = x;
+    this.y = y;
   }
 
-}
+  tryUpdate(isEven: boolean) : boolean {
 
-class Module {
-
-  label: string;
-  destinations: string[];
-
-  constructor(line: string) {
-    const split1 = line.split(" -> ")
-    this.label = split1[0].slice(1);
-    this.destinations = split1[1].split(", ");
+    if (this.state !== OccupiedState.Never) { return false; }
+    this.state = isEven ? OccupiedState.Even : OccupiedState.Odd;
+    return true;
   }
 
-  sendPulse(input: Pulse) : Pulse[] {
-    return [];
+  isOccupied(isEven: boolean) : boolean {
+    return (this.state === OccupiedState.Even && isEven) || (this.state === OccupiedState.Odd && !isEven);
   }
 
-  createPulses(type: PulseType) : Pulse[] {
-    return this.destinations.map(d => new Pulse(type, this.label, d));
-  }
-
-}
-
-class Broadcaster extends Module {
-
-  sendPulse(input: Pulse) : Pulse[] {
-    return this.createPulses(input.type);
+  reset() {
+    if (this.state === OccupiedState.Rock) { return; }
+    this.state = OccupiedState.Never;
   }
 }
 
-class FlipFlop extends Module {
-  state: boolean = false;
-
-  sendPulse(input: Pulse) : Pulse[] {
-    if (input.type === PulseType.High) { return[]; }
-    this.state = !this.state;
-    const pulseType = this.state ? PulseType.High : PulseType.Low;
-    return this.createPulses(pulseType);
-  }
+export enum OccupiedState {
+  Never = 0,
+  Odd = 1,
+  Even = 2,
+  Rock = 3,
 }
-
-class Conjuction extends Module {
-  pulseMap: Map<string, PulseType> = new Map<string, PulseType>();
-
-  sendPulse(input: Pulse) : Pulse[] {
-    this.pulseMap.set(input.source, input.type);
-    const allHigh = [...this.pulseMap.values()].every(t => t === PulseType.High);
-    const pulseType = allHigh ? PulseType.Low : PulseType.High;
-    return this.createPulses(pulseType);
-  }
-
-  createConnection(source: string) {
-    this.pulseMap.set(source, PulseType.Low);
-  }
-}
-
-class Pulse {
-  type: PulseType;
-  source: string;
-  destination: string;
-  constructor(type: PulseType, source:string, destination: string) {
-    this.type = type;
-    this.source = source;
-    this.destination = destination;
-  }
-
-}
-
-export enum PulseType {
-  Low = 0,
-  High = 1
-}
-
