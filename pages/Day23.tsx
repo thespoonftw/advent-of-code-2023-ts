@@ -1,21 +1,24 @@
 import { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import Solver, { InputRow, NumberInput, WorkingBox } from '../components/Solver';
+import Solver from '../components/Solver';
 import Viz23 from '../sims/Viz23';
 
 export default function Render() {
 
   const part1 = (input: string[]): number => {
     const trail = new HikingTrail(input);
+    trail.createConnections(false);
     const l = trail.findLongestPath();
-    trail.markLongestPart();
     setVizTrail(trail);
-    console.log(trail);
     return l;
   }
 
   const part2 = (input: string[]): number => {
-    return 0;
+    const trail = new HikingTrail(input);
+    trail.createConnections(true);
+    const l = trail.findLongestPath();
+    setVizTrail(trail);
+    return l;
   }
 
   const [vizTrail, setVizTrail] = useState<HikingTrail | null>(null);
@@ -33,11 +36,11 @@ export class HikingTrail {
   tiles: Tile[][];
   width: number;
   height: number;
-  paths: Map<Tile, Path> = new Map<Tile, Path>();
-  junctions: Map<Tile, Junction> = new Map<Tile, Junction>();
-  startPath: Path;
-  endPath: Path = null!;
-  endJunction: Junction = null!;
+  paths: Path[] = [];
+  nodes: Map<Tile, Node> = new Map<Tile, Node>();
+
+  startNode: Node = new Node(null);
+  endNode: Node = new Node(null);
   
   constructor(input: string[]) {
 
@@ -57,60 +60,66 @@ export class HikingTrail {
     }
 
     const x = this.tiles[0].filter(t => t.type === TileType.Empty)[0].x;
-    this.startPath = this.createPath(this.tiles[0][x], null);
-    
+    this.createPath(this.tiles[0][x], this.startNode);
+  }
 
+  createConnections(reversible: boolean) {
+    for (const p of this.paths) {
+      const connection = new Connection(p.endNode, p);
+      p.startNode.connections.push(connection);
+
+      if (reversible) {
+        const connection2 = new Connection(p.startNode, p);
+        p.endNode.connections.push(connection2);
+      }
+    }
   }
 
   findLongestPath() : number {
-
-    const startJunction = this.startPath.endJunction!;
-    startJunction.prevPath = this.startPath;
-    startJunction.distanceSoFar = this.startPath.length - 1;
-    let nodesToCheck = [startJunction];
-
-    while (nodesToCheck.length > 0) {
-
-      let node = nodesToCheck[0];
-      for (const n of nodesToCheck) {  
-        if (n.centerTile.x + n.centerTile.y < node.centerTile.x + node.centerTile.y) { node = n; }
-      }
-
-      for (const path of node.exitPaths) {
-
-        const distSoFar = node.distanceSoFar + path.length + 1;
-        const junction = path.endJunction;
-
-        if (junction === null) {
-          return distSoFar;
-        }
-
-        if (distSoFar > junction.distanceSoFar) {
-          junction.distanceSoFar = distSoFar;
-          junction.prevPath = path;
-
-          if (!nodesToCheck.includes(junction)) {
-            nodesToCheck.push(junction);
-          }
-        }
-      }
-
-      nodesToCheck = nodesToCheck.filter(n => n !== node);
-    }
-    return 0;
+    const longestPath = this.findLongestPathRecursive([this.startNode], [], -1)!
+    longestPath.pathsVisited.forEach(p => p.visit());
+    longestPath.nodesVisited.forEach(n => n.visit());
+    return longestPath.distanceSoFar;
   }
 
-  markLongestPart() {
+  findLongestPathRecursive(nodesSoFar: Node[], pathsSoFar: Path[], distance: number) : LongestPath | null {
 
-    let currentPath: Path | null = this.endPath;
-    while (currentPath) {
-      currentPath.visit();
-      const junction : Junction | null = currentPath.startJunction;
-      if (!junction) { break; }
-      junction.centerTile.isVisited = true;
-      currentPath = junction.prevPath;
+    const currentNode = nodesSoFar[nodesSoFar.length - 1];
+
+    // we reached the end
+    const finalPath = currentNode.connections.find(c => c.endNode == this.endNode);
+    if (finalPath) {
+      const d = distance + finalPath.path.length;
+      const paths = [...pathsSoFar, finalPath.path];
+      return new LongestPath(d, nodesSoFar, paths);
     }
 
+    const possibleConnections = currentNode.connections.filter(c => !nodesSoFar.includes(c.endNode));
+
+    // no more possible connections
+    if (possibleConnections.length === 0) { return null; }
+
+    const re: LongestPath[] = [];
+
+    for (const connection of possibleConnections) {
+      const newNodesSoFar = [...nodesSoFar, connection.endNode];
+      const newPathsSoFar = [...pathsSoFar, connection.path];
+      const newDist = distance + connection.path.length + 1; // add 1 for the node
+      const result = this.findLongestPathRecursive(newNodesSoFar, newPathsSoFar, newDist);
+      if (result !== null) { re.push(result); }
+    }
+
+    if (re.length === 0) { return null; }
+
+    let highest = re[0];
+
+    for (const result of re) {
+      if (result.distanceSoFar > highest.distanceSoFar) {
+        highest = result;
+      }
+    }
+
+    return highest;
   }
 
   getTileInDirection(tile: Tile, dir: Direction) : Tile | null {
@@ -133,15 +142,15 @@ export class HikingTrail {
     return this.tiles[y][x];
   }
 
-  getJunction(tile: Tile) : Junction {
-    if (!this.junctions.has(tile)) {
-      const junction = this.createJunction(tile);
-      this.junctions.set(tile, junction)
+  getJunction(tile: Tile) : Node {
+    if (!this.nodes.has(tile)) {
+      const junction = this.createNode(tile);
+      this.nodes.set(tile, junction)
     }
-    return this.junctions.get(tile)!;
+    return this.nodes.get(tile)!;
   }
 
-  createPath(startTile: Tile, prevJunction: Junction | null) : Path {
+  createPath(startTile: Tile, startNode: Node) {
 
     let prevTile: Tile | null = null;
     const tiles: Tile[] = [startTile];
@@ -154,14 +163,15 @@ export class HikingTrail {
 
       prevTile = tile;
 
-      if (nextTiles.length === 0) {
-        this.endPath = new Path(tiles, prevJunction, null);
-        return this.endPath;
+      if (nextTiles.length === 0) { // end of entire trail
+        this.paths.push(new Path(tiles, startNode, this.endNode));
+        return;
       }
 
       tile = nextTiles[0]!;
       tiles.push(tile);
 
+      // end of path
       if (tile.type === TileType.SlopeEast || tile.type === TileType.SlopeSouth) {
         break;
       }      
@@ -169,32 +179,29 @@ export class HikingTrail {
 
     const junctionCenter = this.getTileAfterSlope(tile);
     const nextJunction = this.getJunction(junctionCenter);
-    const re = new Path(tiles, prevJunction, nextJunction);
-    this.paths.set(startTile, re);
-    return re;
+    this.paths.push(new Path(tiles, startNode, nextJunction));
   }
 
-  createJunction(centerTile: Tile) : Junction {
+  createNode(centerTile: Tile) : Node {
 
-    if (this.junctions.has(centerTile)) {
-      return this.junctions.get(centerTile)!;
+    if (this.nodes.has(centerTile)) {
+      return this.nodes.get(centerTile)!;
+    }
+
+    const node = new Node(centerTile);
+
+    let eastTile = this.getTileInDirection(centerTile, Direction.East)!;
+    if (eastTile.type === TileType.SlopeEast) {
+      this.createPath(eastTile, node);
     }
 
     let southTile = this.getTileInDirection(centerTile, Direction.South)!;
-    let eastTile = this.getTileInDirection(centerTile, Direction.East)!;
-
-    const paths: Path[] = [];
-    const junction = new Junction(centerTile, paths);
-
-    if (eastTile.type === TileType.SlopeEast) {
-      paths.push(this.createPath(eastTile, junction));
-    }
     if (southTile.type === TileType.SlopeSouth) {
-      paths.push(this.createPath(southTile, junction));
+      this.createPath(southTile, node);
     }
 
-    this.junctions.set(centerTile, junction);
-    return junction;
+    this.nodes.set(centerTile, node);
+    return node;
   }
 
 }
@@ -216,14 +223,14 @@ export class Tile {
 class Path {
 
   tiles: Tile[];
-  startJunction: Junction | null;
-  endJunction: Junction | null;
+  startNode: Node;
+  endNode: Node;
   length: number;
 
-  constructor(tiles: Tile[], startJunction: Junction | null, endJunction: Junction | null) {
+  constructor(tiles: Tile[], startNode: Node, endNode: Node) {
     this.tiles = tiles;
-    this.startJunction = startJunction;
-    this.endJunction = endJunction;
+    this.startNode = startNode;
+    this.endNode = endNode;
     this.length = tiles.length;
   }
 
@@ -233,16 +240,43 @@ class Path {
   
 }
 
-class Junction {
+class Node {
 
-  centerTile: Tile;
-  exitPaths: Path[];
-  distanceSoFar: number = 0;
-  prevPath: Path | null = null;
+  centerTile: Tile | null;
+  connections: Connection[] = [];
 
-  constructor(centerTile: Tile, exitPaths: Path[]) {
+  constructor(centerTile: Tile | null) {
     this.centerTile = centerTile;
-    this.exitPaths = exitPaths;
+  }
+
+  visit() {
+    if (this.centerTile) { this.centerTile.isVisited = true; }
+  }
+
+}
+
+class Connection {
+
+  endNode: Node;
+  path: Path;
+
+  constructor(endNode: Node, path: Path) {
+    this.endNode = endNode;
+    this.path = path;
+  }
+
+}
+
+class LongestPath {
+
+  distanceSoFar: number;
+  nodesVisited: Node[];
+  pathsVisited: Path[];
+
+  constructor(distanceSoFar: number, nodesVisited: Node[], pathsVisited: Path[]) {
+    this.distanceSoFar = distanceSoFar;
+    this.nodesVisited = nodesVisited;
+    this.pathsVisited = pathsVisited;
   }
 
 }
